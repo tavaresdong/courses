@@ -91,21 +91,6 @@ def cycle(f1, f2, f3):
     19
     """
     "*** YOUR CODE HERE ***"
-    def applyFunc(n):
-        def finalFunc(x):
-            val = x
-            iteration = 1
-            while iteration <= n:
-                if iteration % 3 == 1:
-                    val = f1(val)
-                elif iteration % 3 == 2:
-                    val = f2(val)
-                elif iteration % 3 == 0:
-                    val = f3(val)
-                iteration += 1
-            return val
-        return finalFunc
-    return applyFunc;
 
 
 # You can ignore the rest of this file.
