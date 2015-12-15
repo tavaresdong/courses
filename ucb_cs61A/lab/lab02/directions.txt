@@ -1,0 +1,469 @@
+Lab 2: Control Flow and Higher Order Functions
+
+Table of Contents
+
+Submission
+Python flags
+Division
+Boolean operators
+Question 1: What Would Python Print?
+Boolean order of operations
+Short-circuit operators
+Question 2: What Would Python Print?
+Question 3: Fix the Bug
+Question 4: Disneyland Discounts*
+Question 5: Factor This*
+if statements
+Question 6: What Would Python Print?
+Omitting the else
+Question 7: Fix the Bug II
+while loops
+Question 8: What Would Python Print?
+Question 9: Factorials
+Question 10: Factor This II*
+Error messages
+Higher-Order Functions
+Question 11: What Would Python Output?
+Question 12: Flight of the Bumblebee
+Question 13: I Heard You Liked Functions...*
+Submission
+
+By the end of this lab, you should have submitted the lab02 assignment using the command submit lab02.
+
+This lab is due at 11:59pm on 09/10/2014.
+
+To receive credit for this lab, you must complete Questions 3, 7, 9, and 12. Questions 1, 2, 6, 8, and 11 (What Would Python Print?) are to help introduce concepts and test your understanding. Questions 4, 5, 10, and 13 are marked with an asterisk and considered extra practice. It is recommended that you complete these problems on your own time.
+
+The starter file lab02.py contains all of the questions you must submit. In addition, the lab02_extra.py file contains all of the extra practice questions.
+
+Python flags
+
+When running a Python file, you can append certain "flags" on the command line to inspect your code further. Here are a few useful ones that'll come in handy this semester. If you want to learn more about other Python flags, you can look at the documentation.
+
+no flags: Using no flags will directly run your Python script, meaning that Python will run the code in the file you provide and return you to the command line.
+-i: The -i option runs your Python script, and throws you into an interactive session. If you omit the -i option, Python will only run your script.
+-m doctest: Using the -m doctest option will be useful on your homeworks and projects to help you test your code by showing you whether your code is working as you intend it to. Doctests are marked by triple quotations (""") and are usually located within the function.
+-v: The -v flag signifies a verbose option. You can use this in conjunction with the -m doctest flag to be notified of all results (both failing and passing tests), i.e. python3 -m doctest -v FILE_NAME
+Division
+
+Let's compare the ideas of true division (single slash / in Python; does decimal division), floor division (double slash // in Python; rounds down to the nearest integer), and modulo (percent sign % in Python; similar to a remainder):
+
+True Division (decimal division):
+
+>>> 1 / 4
+0.25
+>>> 4 / 2
+2.0
+>>> 11 / 3
+3.6666666666666665
+Floor Division (integer division):
+
+>>> 1 // 4
+0
+>>> 4 // 2
+2
+>>> 11 // 3
+3
+Modulo (similar to a remainder):
+
+>>> 1 % 4
+1
+>>> 4 % 2
+0
+>>> 11 % 3
+2
+Notice that we can check whether x is divisible by y by checking if x % y == 0.
+
+Boolean operators
+
+Question 1: What Would Python Print?
+
+What would Python print? Try to figure it out before you type it into the interpreter!
+
+>>> a, b = 10, 6
+>>> a != 0 and b > 5
+______
+
+>>> a < b or not a
+______
+
+>>> not not a
+______
+
+>>> not (not a or not not b)
+______
+Toggle Solution
+Boolean order of operations
+
+What do you think the following expression evaluates to?
+
+True and not False or not True and False
+It turns out that Python interprets that expression in the following way:
+
+(True and (not False)) or ((not True) and False)
+Failing to use parentheses is one of the easiest ways for you to break your program - it is very easy to misunderstand how Python will understand your expression if you don't have parentheses.
+
+Boolean operators, like arithmetic operators, have an order of operation:
+
+not has the highest priority
+and
+or has the lowest priority
+Short-circuit operators
+
+In Python, and and or are examples of short-circuiting operators. Consider the following code:
+
+10 or 1 / 0 != 1
+Notice that if we just evaluate 1 / 0, Python will raise an error, stopping evaluation altogether!
+
+However, the original line of code will not cause any errors — in fact, it will evaluate to 10. This is made possible due to short-circuiting, which works as follows:
+
+For and statements, Python will go left to right until it runs into the first value that is false-y — then it will immediately evaluate to that value. If all of the values are truth-y, it returns the last value.
+For or statements, Python will go left to right until it runs into the first value that is truth-y — then it will immediately evaluate to that value. If all of the values are false-y, it returns the last value.
+Informally, false-y values are things that are "empty". The false-y values we have learned about so far are False, 0, None, and "" (the empty string).
+
+Question 2: What Would Python Print?
+
+>>> True and 1 / 0 == 1 and False
+______
+
+>>> True or 1 / 0 == 1 or False
+______
+
+>>> True and 0
+______
+
+>>> False or 1
+______
+
+>>> 1 and 3 and 6 and 10 and 15
+______
+
+>>> "" or 0 or False or 2 or 1 / 0
+______
+Toggle Solution
+Question 3: Fix the Bug
+
+The following snippet of code doesn't work! Figure out what is wrong and fix the bugs.
+
+Toggle Solution
+def both_positive(x, y):
+    """
+    Returns True if both x and y are positive.
+    >>> both_positive(-1, 1)
+    False
+    >>> both_positive(1, 1)
+    True
+    """
+    "*** YOUR CODE HERE ***"
+    return x and y > 0
+Question 4: Disneyland Discounts*
+
+Disneyland is having a special where they give discounts for grandparents accompanying their grandchildren. Help Disneyland figure out when the discount should be given. Define a function gets_discount that takes two numbers as input (representing the two ages) and returns True if one of them is a senior citizen (age 65 or above) and the other is a child (age 12 or below). You should not use if in your solution.
+
+Toggle Solution
+def gets_discount(x, y):
+    """ Returns True if this is a combination of a senior citizen
+    and a child, False otherwise.
+
+    >>> gets_discount(65, 12)
+    True
+    >>> gets_discount(9, 70)
+    True
+    >>> gets_discount(40, 45)
+    False
+    >>> gets_discount(40, 75)
+    False
+    >>> gets_discount(65, 13)
+    False
+    >>> gets_discount(7, 9)
+    False
+    >>> gets_discount(73, 77)
+    False
+    >>> gets_discount(70, 31)
+    False
+    >>> gets_discount(10, 25)
+    False
+    """
+    "*** YOUR CODE HERE ***"
+Question 5: Factor This*
+
+Define a function is_factor that checks whether its first argument is a factor of its second argument. We will assume that 0 is not a factor of any number but any non-zero number is a factor of 0. You should not use if in your solution.
+
+Toggle Solution
+def is_factor(x, y):
+    """ Returns True if x is a factor of y, False otherwise.
+
+    >>> is_factor(3, 6)
+    True
+    >>> is_factor(4, 10)
+    False
+    >>> is_factor(0, 5)
+    False
+    >>> is_factor(0, 0)
+    False
+    """
+    "*** YOUR CODE HERE ***"
+if statements
+
+Question 6: What Would Python Print?
+
+>>> a, b = 10, 6
+>>> if a == 4:
+...     6
+... elif b >= 4:
+...     6 + 7 + a
+... else: 
+...     25
+______
+Toggle Solution
+Omitting the else
+
+Consider the following function:
+
+def abs(x):
+    if x >= 0:
+        return x
+    else:
+        return -x
+It is correct to rewrite abs in the following way:
+
+def abs(x):
+    if x >= 0:
+        return x
+    return -x       
+This is a direct consequence of how return works — when Python sees a return statement, it will immediately terminate the function, and the rest of the function will not be evaluated. In the above example, if x >= 0, Python will never reach the final line. Try to convince yourself that this is indeed the case before moving on.
+
+Keep in mind that omitting the else only works if the function is terminated! For example, the following function will always print "less than zero", because the function is not terminated in the body of the if suite:
+
+>>> def foo(x):
+...     if x > 0:
+...         print("greater than zero")
+...     print("less than zero")
+...
+>>> foo(-3)
+less than zero
+>>> foo(4)
+greater than zero
+less than zero
+In general, omitting the else will make your code more concise — however, if you find that it makes your code harder to read, by all means use an else statement.
+
+Question 7: Fix the Bug II
+
+The following snippet of code doesn't work! Figure out what is wrong and fix the bugs.
+
+def compare(a, b):
+    """ Compares if a and b are equal.
+
+    >>> compare(4, 2)
+    'not equal'
+    >>> compare(4, 4)
+    'equal'
+    """
+    if a = b:
+        return 'equal'
+    return 'not equal'
+Toggle Solution
+while loops
+
+Question 8: What Would Python Print?
+
+>>> n = 3
+>>> while n >= 0:
+...     n -= 1
+...     print(n)
+...
+______
+
+>>> n, i = 7, 0
+>>> while i < n:
+...     i += 2
+...     print(i)
+...
+______
+
+>>> # typing Ctrl-C will stop infinite loops
+>>> n = 4
+>>> while True:
+...     n -= 1
+...     print(n)
+...
+______
+
+... # continues forever
+______
+
+>>> n = 2
+>>> def exp_decay(n):
+...     if n % 2 != 0:
+...         return
+...     while n > 0:
+...         print(n)
+...         n = n // 2
+...
+>>> exp_decay(64)
+______
+
+>>> exp_decay(5)
+______
+Toggle Solution
+Question 9: Factorials
+
+Let's write a function falling, which is a "falling" factorial that takes two arguments, n and k, and returns the product of k consecutive numbers, starting from n and working downwards.  Toggle Solution
+def falling(n, k):
+    """
+    Compute the falling factorial of n to depth k.
+
+    >>> falling(6, 3)  # 6 * 5 * 4
+    120
+    >>> falling(4, 0)
+    1
+    """
+    "*** YOUR CODE HERE ***"
+Question 10: Factor This II*
+
+Define a function factors(n) which takes in a number, n, and prints out all of the numbers that divide n evenly. For example, a call with n = 20 should result as follows:  Toggle Solution
+def factors(n):
+    """
+    Prints out all of the numbers that divide `n` evenly.
+
+    >>> factors(20)
+    20
+    10
+    5
+    4
+    2
+    1
+    """
+    "*** YOUR CODE HERE ***"
+Error messages
+
+By now, you've probably seen a couple of error messages. Even though they might look intimidating, error messages are actually very helpful in debugging code. The following are some common types of errors (found at the bottom of an error message):
+
+SyntaxError: Indicates that your code contains improper syntax (e.g. missing a colon after an if statement).
+IndentationError: Indicates that your code contains improper indentation (e.g. inconsistent indentation of a function body)
+TypeError: Indicates an attempted operation on incompatible types (e.g. trying to add a function and an int)
+ZeroDivisionError: Indicates an attempted division by zero.
+Using these descriptions of error messages, you should be able to get a better idea of what went wrong with your code. If you run into error messages, try to identify the problem before asking for help. You can often Google unknown error messages to see what similar mistakes others have made to help you debug your own code.
+
+For example:
+
+>>> square(3, 3)
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+TypeError: square() takes 1 positional argument but 2 were given
+Notice that the last line of the error message tells us exactly what we did wrong - we gave square 2 arguments when it only takes in 1 argument. In general, the last line is the most helpful.
+
+Here's a link to an extremely helpful Debugging Guide written by Albert Wu. It is highly recommended that you read this in its entirety! Pay particular attention to the section called "Error Types" (the other sections are fairly involved but will be useful in the larger projects).
+
+Higher-Order Functions
+
+Higher order functions are functions that take a function as an input, and/or output a function. We will be exploring many applications of higher order functions.
+
+Question 11: What Would Python Output?
+
+>>> def square(x):
+...     return x*x
+...
+>>> def neg(f, x):
+...     return -f(x)
+...
+>>> neg(square, 4)
+______
+Toggle Solution
+>>> def even(f):
+...     def odd(x):
+...         if x < 0:
+...             return f(-x)
+...         return f(x)
+...     return odd
+...
+>>> def identity(x):
+...     return x
+...
+>>> triangle = even(identity)
+>>> triangle(61)
+______
+
+>>> triangle(-4)
+______
+Toggle Solution
+>>> def first(x):
+...     x += 8
+...     def second(y):
+...         print('second')
+...         return x + y
+...     print('first')
+...     return second
+...
+>>> f = first(15)
+______
+
+>>> f(16)
+______
+Toggle Solution
+Question 12: Flight of the Bumblebee
+
+Write a function that takes in a number n and returns a function that takes in a number range which will print all numbers from 0 to range (including 0 but excluding range) but print Buzz! instead for all the numbers that are divisible by n.
+
+Toggle Solution
+def make_buzzer(n):
+    """ Returns a function that prints numbers in a specified
+    range except those divisible by n.
+
+    >>> i_hate_fives = make_buzzer(5)
+    >>> i_hate_fives(10)
+    Buzz!
+    1
+    2
+    3
+    4
+    Buzz!
+    6
+    7
+    8
+    9
+    """
+    "*** YOUR CODE HERE ***"
+Question 13: I Heard You Liked Functions...*
+
+This question is extremely challenging. Use it to test if you have really mastered the material!
+
+Define a function cycle that takes in three functions f1, f2, f3, as arguments. cycle will return another function that should take in an integer argument n and return another function. That final function should take in an argument x and cycle through applying f1, f2, and f3 to x, depending on what n was. Here’s the what the final function should do to x for a few values of n:
+
+n = 0, return x
+n = 1, apply f1 to x, or return f1(x)
+n = 2, apply f1 to x and then f2 to the result of that, or return f2(f1(x))
+n = 3, apply f1 to x, f2 to the result of applying f1, and then f3 to the result of applying f2, or f3(f2(f1(x)))
+n = 4, start the cycle again applying f1, then f2, then f3, then f1 again, or f1(f3(f2(f1(x))))
+And so forth.
+Hint: most of the work goes inside the most nested function.
+
+Toggle Solution
+def cycle(f1, f2, f3):
+    """ Returns a function that is itself a higher order function
+    >>> def add1(x):
+    ...     return x + 1
+    ...
+    >>> def times2(x):
+    ...     return x * 2
+    ...
+    >>> def add3(x):
+    ...     return x + 3
+    ...
+    >>> my_cycle = cycle(add1, times2, add3)
+    >>> identity = my_cycle(0)
+    >>> identity(5)
+    5
+    >>> add_one_then_double = my_cycle(2)
+    >>> add_one_then_double(1)
+    4
+    >>> do_all_functions = my_cycle(3)
+    >>> do_all_functions(2)
+    9
+    >>> do_more_than_a_cycle = my_cycle(4)
+    >>> do_more_than_a_cycle(2)
+    10
+    >>> do_two_cycles = my_cycle(6)
+    >>> do_two_cycles(1)
+    19
+    """
