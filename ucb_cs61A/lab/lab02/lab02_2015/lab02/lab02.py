@@ -64,6 +64,7 @@ def make_encrypter(f1, f2, f3):
     """
     f1, f2, f3 = looper(f1), looper(f2), looper(f3)
     "*** YOUR CODE HERE ***"
+    return lambda x : f1(f2(f3(x)))
 
 def make_decrypter(f1, f2, f3):
     """Generates a "decrypter" function.
@@ -76,5 +77,6 @@ def make_decrypter(f1, f2, f3):
     """
     f1, f2, f3 = looper(f1), looper(f2), looper(f3)
     "*** YOUR CODE HERE ***"
+    return lambda x : f3(f2(f1(x)))
 
 
