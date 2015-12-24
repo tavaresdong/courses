@@ -6,6 +6,8 @@ package model;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.PrintWriter;
+import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -47,6 +49,28 @@ public class IBM_Model1 {
 		}
 	}
 	
+	public IBM_Model1(String tvalueFile) {
+		try {
+			Scanner sc = new Scanner(new File(tvalueFile), "utf-8");
+			_tvalues = new HashMap<String, Map<String, Double>>();
+			
+			while (sc.hasNextLine()) {
+				String[] vals = sc.nextLine().split("\\s");
+				String e = vals[0];
+				String f = vals[1];
+				double tval = Double.parseDouble(vals[2]);
+				if (!_tvalues.containsKey(e)) {
+					_tvalues.put(e, new HashMap<String, Double>());
+				}
+				_tvalues.get(e).put(f, tval);
+			} 
+			
+			System.out.println("Load model from " + tvalueFile + " done.");
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		}
+	}
+	
 	/**
 	 * Train the model using EM algorithm and iterate 
 	 * numIter rounds
@@ -58,15 +82,15 @@ public class IBM_Model1 {
 		for (int iter = 0; iter < numIter; iter++) {
 			_setCountsToZero();
 			for (int k = 0; k < _rawNativeData.size(); k++) {
-				String[] nativeWords  = _rawNativeData.get(k).split(" ");
-				String[] foreignWords = _rawForeignData.get(k).split(" ");
+				String[] nativeWords  = _rawNativeData.get(k).split("\\s");
+				String[] foreignWords = _rawForeignData.get(k).split("\\s");
 				for (int i = 1; i <= foreignWords.length; i++) {
 					for (int j = 0; j <= nativeWords.length; j++) {
 						
 						// Note the index should be subtracted by 1
-						// -1 means the special native word null
+						// -1 means the special native word "NULL"
 						double delta = _calculateDelta(foreignWords, nativeWords, i, j);
-						_updateCvlaue(foreignWords, nativeWords, i, j, delta);
+						_updateCvalue(foreignWords, nativeWords, i, j, delta);
 						_updateEcvalue(nativeWords, j, delta);
 						
 					}
@@ -87,6 +111,86 @@ public class IBM_Model1 {
 		System.out.println("Training Done");
 		return true;
 	}
+	
+	public void doAlign(String nativeFile, String foreignFile, String outFile) {
+		Scanner nativeSc  = null;
+		Scanner foreignSc = null;
+		PrintWriter pw    = null;
+
+		try {
+			nativeSc  = new Scanner(new File(nativeFile), "utf-8");
+			foreignSc = new Scanner(new File(foreignFile), "utf-8");
+			pw    = new PrintWriter(new File(outFile), "utf-8");
+			int sentenceInd = 0;
+			while (nativeSc.hasNextLine() && foreignSc.hasNextLine()) {
+				String esenten = nativeSc.nextLine();
+				String fsenten = foreignSc.nextLine();
+				sentenceInd++;
+				
+				String[] foreignWords = fsenten.split("\\s");
+				String[] nativeWords  = esenten.split("\\s");
+				
+				// Calculate ai (alignment i)
+				for (int i = 0; i < foreignWords.length; i++) {
+					String f = foreignWords[i];
+					int ind = -1;
+					double maxtval = Double.MIN_VALUE;
+					for (int j = -1; j < nativeWords.length; j++) {
+						String e = j == -1 ? "NULL" : nativeWords[j];
+						if (!_tvalues.containsKey(e)) {
+							continue;
+						} else {
+							if (!_tvalues.get(e).containsKey(f)) {
+								continue;
+							} else if (_tvalues.get(e).get(f) > maxtval){
+								maxtval = _tvalues.get(e).get(f);
+								ind = j;
+							}
+						}
+					}
+					if (ind == -1) {
+						System.out.println("Sentence " + sentenceInd +  "Word:" + f + " is aligned to NULL");
+						continue;
+					}
+					else {
+						// Print value
+//						System.out.println(sentenceInd + " " + (ind + 1) + " " + (i + 1));
+						pw.println(sentenceInd + " " + (ind + 1) + " " + (i + 1));
+					}
+					
+				}
+			}
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		} catch (UnsupportedEncodingException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		} finally {
+			pw.close();
+		}
+
+	}
+	
+	
+	/**
+	 * Output the Trained t-values to a file with the format:
+	 * english-word foreign-word t-value
+	 * @param outFile
+	 */
+	public void outputTValues(String outFile) {
+		try {
+			PrintWriter pw = new PrintWriter(new File(outFile), "utf-8");
+			for (String e : _tvalues.keySet()) {
+				for (String f : _tvalues.get(e).keySet()) {
+					pw.println(e + " " + f + " " + _tvalues.get(e).get(f));
+				}
+			}
+			System.out.println("Done writing t-values to file: " + outFile);
+		} catch (FileNotFoundException | UnsupportedEncodingException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
 
 	private void _updateEcvalue(String[] nativeWords, int j, double delta) {
 		String e_j = (j == 0) ? "NULL" : nativeWords[j - 1];
@@ -100,7 +204,7 @@ public class IBM_Model1 {
 		return _ecvalues.get(e);
 	}
 
-	private void _updateCvlaue(String[] foreignWords, String[] nativeWords, 
+	private void _updateCvalue(String[] foreignWords, String[] nativeWords, 
 						int i, int j, double delta) {
 		String f_i = foreignWords[i - 1];
 		String e_j = (j == 0) ? "NULL" : nativeWords[j - 1];
@@ -171,8 +275,8 @@ public class IBM_Model1 {
 			_rawNativeData.add(nativeLine);
 			_rawForeignData.add(foreignLine);
 			
-			String[] nativeWords  = nativeLine.split(" ");
-			String[] foreignWords = foreignLine.split(" ");
+			String[] nativeWords  = nativeLine.split("\\s");
+			String[] foreignWords = foreignLine.split("\\s");
 			
 			// Accumulate the n(e) count
 			for (String e : nativeWords) {
