@@ -1,19 +1,31 @@
 package evaluation;
 
 import model.IBM_Model1;
+import model.IBM_Model2;
 
 public class Test {
 	public static void main(String[] args) {
-//		IBM_Model1 model1 = new IBM_Model1("data/corpus.en", "data/corpus.es");
-//		model1.TrainModel(5);
-//		model1.outputTValues("data/model");
-//		IBM_Model1 model1 = new IBM_Model1("data/model");
-//		model1.doAlign("data/dev.en", "data/dev.es", "data/test.key");
-//		model1.doAlign("data/test.en", "data/test.es", "data/alignment_test.p1.out");
 		
-		IBM_Model1 model1 = new IBM_Model1("data/test.ch.txt", "data/test.en.txt");
+//		IBM_Model1 model1 = new IBM_Model1("data/test.ch.txt", "data/test.en.txt");
+//		model1.TrainModel(5);
+//		model1.doAlign("data/test.ch.txt", "data/test.en.txt", "data/result");
+		
+//		TestModel1();
+		TestModel2();
+	}
+	
+	public static void TestModel1() {
+		IBM_Model1 model1 = new IBM_Model1("data/corpus.en", "data/corpus.es");
 		model1.TrainModel(5);
-		model1.doAlign("data/test.ch.txt", "data/test.en.txt", "data/result");
+		model1.outputTValues("data/tmodel");
+		model1.doAlign("data/dev.en", "data/dev.es", "data/test.key");
+
+
+	}
+	
+	public static void TestModel2() {
+		IBM_Model2 model2 = new IBM_Model2("data/corpus.en", "data/corpus.es", "data/tmodel");
+		
 	}
 
 }
