@@ -26,6 +26,10 @@ class QValuePairs {
 	private int L;
 	private int M;
 	
+	public Map<Integer, Map<Integer, Double>> getMap() {
+		return map;
+	}
+	
 	public QValuePairs(int l, int m, boolean init) {
 		
 		map = new HashMap<Integer, Map<Integer, Double>>();
@@ -52,6 +56,19 @@ class QValuePairs {
 			return 0.0;
 		}
 		return map.get(i).get(j);
+	}
+
+	public void updateValue(int i, int j, double d) {
+		if (!map.containsKey(i)) {
+			map.put(i, new HashMap<Integer, Double>());
+		}
+		if (!map.get(i).containsKey(j)) {
+			map.get(i).put(j, d);
+		} else {
+			double prev = map.get(i).get(j);
+			map.get(i).put(j, prev + d);
+		}
+		
 	}
 }
 
@@ -100,14 +117,14 @@ public class IBM_Model2 {
 	
 	
 	private void _loadTModel(String tmodelFile) {
+		Scanner sc = null;
 		try {
-			Scanner sc = new Scanner(new File(tmodelFile), "utf-8");
+			sc = new Scanner(new File(tmodelFile), "utf-8");
 			_tvalues = new HashMap<String, Map<String, Double>>();
 			
 			while (sc.hasNextLine()) {
 				String line = sc.nextLine();
 				String[] vals = line.split("\\s");
-				System.out.println(line);
 				String e = vals[0];
 				String f = vals[1];
 				double tval = Double.parseDouble(vals[2]);
@@ -117,9 +134,11 @@ public class IBM_Model2 {
 				_tvalues.get(e).put(f, tval);
 			} 
 			
-			System.out.println("Load model from " + tmodelFile + " done.");
+//			System.out.println("Load model from " + tmodelFile + " done.");
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
+		} finally {
+			sc.close();
 		}
 	}
 
@@ -145,6 +164,8 @@ public class IBM_Model2 {
 						double delta = _calculateDelta(foreignWords, nativeWords, i, j);
 						_updateCvalue(foreignWords, nativeWords, i, j, delta);
 						_updateEcvalue(nativeWords, j, delta);
+						_updateQcvalue(foreignWords, nativeWords, i, j, delta);
+						_updateEqcvalue(foreignWords, nativeWords, i, delta);
 						
 					}
 				}
@@ -158,6 +179,18 @@ public class IBM_Model2 {
 					_tvalues.get(e).put(f, cef / ce);
 				}
 			}
+			
+			for (int l : _qvalues.keySet()) {
+				for (int m : _qvalues.get(l).keySet()) {
+					for (int i : _qvalues.get(l).get(m).getMap().keySet()) {
+						double cilm = _getEqcvalue(l, m, i);
+						for (int j : _qvalues.get(l).get(m).getMap().get(i).keySet()) {
+							double cj_ilm = _getQcvalue(l, m, i, j);
+							_qvalues.get(l).get(m).updateValue(i, j, cilm / cj_ilm);
+						}
+					}
+				}
+			}
 			System.out.println("Iteration : " + iter + " is done.");
 		}
 		
@@ -165,6 +198,51 @@ public class IBM_Model2 {
 		return true;
 	}
 	
+	private double _getEqcvalue(int l, int m, int i) {
+		if (!_qecvalues.containsKey(l)) {
+			_qecvalues.put(l, new HashMap<Integer, Map<Integer, Double>>());
+		}
+		if (!_qecvalues.get(l).containsKey(m)) {
+			_qecvalues.get(l).put(m, new HashMap<Integer, Double>());
+		}
+		if (!_qecvalues.get(l).get(m).containsKey(i)) {
+			_qecvalues.get(l).get(m).put(i, 0.0);
+		}
+		return _qecvalues.get(l).get(m).get(i);
+
+	}
+	
+	private void _updateEqcvalue(String[] foreignWords, String[] nativeWords, int i, double delta) {
+		int l = nativeWords.length;
+		int m = foreignWords.length;
+		
+		double prev = _getEqcvalue(l, m, i);
+		_qecvalues.get(l).get(m).put(i, prev + delta);
+	}
+
+
+	private double _getQcvalue(int l, int m, int i, int j) {
+		if (!_qcvalues.containsKey(l)) {
+			_qcvalues.put(l, new HashMap<Integer, QValuePairs>());
+		}
+		if (!_qcvalues.get(l).containsKey(m)) {
+			_qcvalues.get(l).put(m, new QValuePairs(l,m,false));
+		}
+		return _qcvalues.get(l).get(m).getValue(i, j);
+
+	}
+	
+	private void _updateQcvalue(String[] foreignWords, String[] nativeWords, 
+								int i, int j, double delta) {
+		int l = nativeWords.length;
+		int m = foreignWords.length;
+		
+		double prev = _getQcvalue(l, m, i, j);
+		
+		_qcvalues.get(l).get(m).updateValue(i, j, prev + delta);
+	}
+
+
 	public void doAlign(String nativeFile, String foreignFile, String outFile) {
 		Scanner nativeSc  = null;
 		Scanner foreignSc = null;
@@ -183,6 +261,9 @@ public class IBM_Model2 {
 				String[] foreignWords = fsenten.split("\\s");
 				String[] nativeWords  = esenten.split("\\s");
 				
+				int l = nativeWords.length;
+				int m = foreignWords.length;
+				
 				// Calculate ai (alignment i)
 				for (int i = 0; i < foreignWords.length; i++) {
 					String f = foreignWords[i];
@@ -190,13 +271,14 @@ public class IBM_Model2 {
 					double maxtval = Double.MIN_VALUE;
 					for (int j = -1; j < nativeWords.length; j++) {
 						String e = j == -1 ? "NULL" : nativeWords[j];
+						double qvalue = _getQvalue(j + 1, i + 1, l, m);
 						if (!_tvalues.containsKey(e)) {
 							continue;
 						} else {
 							if (!_tvalues.get(e).containsKey(f)) {
 								continue;
-							} else if (_tvalues.get(e).get(f) > maxtval){
-								maxtval = _tvalues.get(e).get(f);
+							} else if ((qvalue * _tvalues.get(e).get(f)) > maxtval){
+								maxtval = qvalue * _tvalues.get(e).get(f);
 								ind = j;
 							}
 						}
@@ -327,8 +409,10 @@ public class IBM_Model2 {
 	}
 
 	private void _setCountsToZero() {
-		_cvalues  = new HashMap<String, Map<String, Double>>();
-		_ecvalues = new HashMap<String, Double>();
+		_cvalues   = new HashMap<String, Map<String, Double>>();
+		_ecvalues  = new HashMap<String, Double>();
+		_qcvalues  = new HashMap<Integer, Map<Integer, QValuePairs>>();
+		_qecvalues = new HashMap<Integer, Map<Integer, Map<Integer, Double>>>();
 	}
 
 	// Input corpus data, and generate the initial t values

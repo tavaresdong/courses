@@ -25,7 +25,8 @@ public class Test {
 	
 	public static void TestModel2() {
 		IBM_Model2 model2 = new IBM_Model2("data/corpus.en", "data/corpus.es", "data/tmodel");
-		
+		model2.TrainModel(5);
+		model2.doAlign("data/dev.en", "data/dev.es", "data/test2.key");
 	}
 
 }
