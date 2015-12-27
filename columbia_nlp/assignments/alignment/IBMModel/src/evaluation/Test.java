@@ -6,9 +6,9 @@ import model.IBM_Model2;
 public class Test {
 	public static void main(String[] args) {
 		
-//		IBM_Model1 model1 = new IBM_Model1("data/test.ch.txt", "data/test.en.txt");
+//		IBM_Model1 model1 = new IBM_Model1("data/tmodel");
 //		model1.TrainModel(5);
-//		model1.doAlign("data/test.ch.txt", "data/test.en.txt", "data/result");
+//		model1.doAlign("data/dev.en", "data/dev.es", "data/test2.key");
 		
 //		TestModel1();
 		TestModel2();

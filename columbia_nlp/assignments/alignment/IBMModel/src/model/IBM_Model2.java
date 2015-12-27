@@ -37,7 +37,7 @@ class QValuePairs {
 		M = m;
 		double initVal = 0.0;
 		if (init) 
-			initVal = 1.0 / (L + 1);
+			initVal = 1.0 / (double)(L + 1);
 		
 		for (int j = 1; j <= M; j++) {
 			map.put(j, new HashMap<Integer, Double>());
@@ -104,14 +104,19 @@ public class IBM_Model2 {
 	public IBM_Model2(String native_corpus_fn, 
 					  String foreign_corpus_fn,
 					  String tmodelFile) {
+		Scanner nativeSc = null;
+		Scanner foreignSc = null;
+
 		try {
-			Scanner nativeSc  = new Scanner(new File(native_corpus_fn), "utf-8");
-			Scanner foreignSc = new Scanner(new File(foreign_corpus_fn), "utf-8");
-			
+			nativeSc  = new Scanner(new File(native_corpus_fn), "utf-8");
+			foreignSc = new Scanner(new File(foreign_corpus_fn), "utf-8");
 			_getRawData(nativeSc, foreignSc);
 			_loadTModel(tmodelFile);
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
+		} finally {
+			nativeSc.close();
+			foreignSc.close();
 		}
 	}
 	
@@ -173,13 +178,14 @@ public class IBM_Model2 {
 			
 			// Update _tvalues
 			for (String e : _tvalues.keySet()) {
+				double ce  = _ecvalues.get(e);
 				for (String f : _tvalues.get(e).keySet()) {
 					double cef = _cvalues.get(e).get(f);
-					double ce  = _ecvalues.get(e);
 					_tvalues.get(e).put(f, cef / ce);
 				}
 			}
 			
+			// Update _qvalues
 			for (int l : _qvalues.keySet()) {
 				for (int m : _qvalues.get(l).keySet()) {
 					for (int i : _qvalues.get(l).get(m).getMap().keySet()) {
@@ -258,6 +264,9 @@ public class IBM_Model2 {
 				String fsenten = foreignSc.nextLine();
 				sentenceInd++;
 				
+				if (esenten.trim().isEmpty() || fsenten.trim().isEmpty())
+					continue;
+				
 				String[] foreignWords = fsenten.split("\\s");
 				String[] nativeWords  = esenten.split("\\s");
 				
@@ -272,14 +281,19 @@ public class IBM_Model2 {
 					for (int j = -1; j < nativeWords.length; j++) {
 						String e = j == -1 ? "NULL" : nativeWords[j];
 						double qvalue = _getQvalue(j + 1, i + 1, l, m);
+						
 						if (!_tvalues.containsKey(e)) {
 							continue;
 						} else {
 							if (!_tvalues.get(e).containsKey(f)) {
 								continue;
-							} else if ((qvalue * _tvalues.get(e).get(f)) > maxtval){
-								maxtval = qvalue * _tvalues.get(e).get(f);
-								ind = j;
+							} else  {
+								double val = qvalue * _tvalues.get(e).get(f);
+								if (val > maxtval){
+									maxtval = val;
+									ind = j;
+								}
+								
 							}
 						}
 					}
@@ -289,7 +303,7 @@ public class IBM_Model2 {
 					}
 					else {
 						// Print value
-//						System.out.println(sentenceInd + " " + (ind + 1) + " " + (i + 1));
+						System.out.println(sentenceInd + " " + (ind + 1) + " " + (i + 1));
 						pw.println(sentenceInd + " " + (ind + 1) + " " + (i + 1));
 					}
 					
@@ -301,6 +315,8 @@ public class IBM_Model2 {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
 		} finally {
+			nativeSc.close();
+			foreignSc.close();
 			pw.close();
 		}
 
@@ -377,9 +393,10 @@ public class IBM_Model2 {
 		
 		// Calculate t(f|e) * q(j|i, l,m) with all possible e's in current sentence
 		double sumqtfes = 0.0;
-		for (int q = 0; q < nativeWords.length; q++) {
+		for (int q = 0; q <= nativeWords.length; q++) {
 			String e_q = (q == 0) ? "NULL" : nativeWords[q - 1];
-			sumqtfes += (_getTvalue(e_q, f_i) * _getQvalue(q, i, l, m));
+			double prod = _getTvalue(e_q, f_i) * _getQvalue(q, i, l, m);
+			sumqtfes += prod;
 		}
 		
 		return (tfe * qval) / sumqtfes;
