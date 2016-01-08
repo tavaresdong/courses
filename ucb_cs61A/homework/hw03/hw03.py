@@ -75,6 +75,26 @@ def pingpong(n):
     2
     """
     "*** YOUR CODE HERE ***"
+    def change(ind):
+        if ind % 7 == 0 or has_seven(ind):
+            return True
+        return False
+
+    def pong(up, ind, val):
+        if ind == n:
+            return val
+        if change(ind):
+            if up == 0:
+                return pong(1 - up, ind + 1, val - 1)
+            else:
+                return pong(1 - up, ind + 1, val + 1)
+        else:
+            if up == 0:
+                return pong(up, ind + 1, val + 1)
+            else:
+                return pong(up, ind + 1, val - 1)
+    return pong(0, 1, 1) 
+
 
 def has_seven(k):
     """Returns True if at least one of the digits of k is a 7, False otherwise.
@@ -112,7 +132,27 @@ def count_change(amount):
     >>> count_change(100)
     9828
     """
-    "*** YOUR CODE HERE ***"
+    def change_with_maxcoin(total, maxcoin):
+        if total == 0:
+            return 1
+        if maxcoin == 0:
+            return 0
+        cnt = 0
+        num_change = 0
+        while cnt * maxcoin <= total:
+            num_change += change_with_maxcoin(total - cnt * maxcoin, maxcoin // 2)
+            cnt = cnt + 1
+        return num_change
+
+    maxcoin = 1
+    while maxcoin < amount:
+        maxcoin = maxcoin * 2
+    if maxcoin > amount:
+        maxcoin = maxcoin // 2
+
+    return change_with_maxcoin(amount, maxcoin)
+
+
 
 
 def print_move(origin, destination):
