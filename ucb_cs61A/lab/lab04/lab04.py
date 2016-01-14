@@ -184,6 +184,16 @@ def print_board(board, max_rows, max_cols):
     X -
     """
     "*** YOUR CODE HERE ***"
+    assert max_rows > 0 and max_cols > 0
+    row = 0
+    while row  < max_rows:
+        col = 1 
+        line = get_piece(board, row, 0)
+        while col < max_cols:
+            line = line + ' ' + get_piece(board, row, col)
+            col = col + 1
+        print(line)
+        row = row + 1
 
 def check_win_row(board, max_rows, max_cols, num_connect, row, player):
     """ Returns True if the given player has a horizontal win
