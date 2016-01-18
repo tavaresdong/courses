@@ -14,6 +14,16 @@ def flatten(lst):
     [1, 1, 1, 1, 1, 1]
     """
     "*** YOUR CODE HERE ***"
+    if type(lst) != list:
+        return [lst]
+    else:
+        flst = []
+        for elem in lst:
+            if type(elem) != list:
+                flst.append(elem)
+            else:
+                flst.extend(flatten(elem))
+        return flst
 
 
 # Q13
@@ -30,5 +40,16 @@ def merge(lst1, lst2):
     [2, 4, 5, 6, 7]
     """
     "*** YOUR CODE HERE ***"
+    assert type(lst1) == list and type(lst2) == list
+    merge_lst = []
+    if len(lst1) == 0:
+        return lst2
+    elif len(lst2) == 0:
+        return lst1
+    else:
+        if lst1[0] < lst2[0]:
+            return [lst1[0]] + merge(lst1[1:], lst2)
+        else:
+            return [lst2[0]] + merge(lst1, lst2[1:])
 
 
