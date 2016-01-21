@@ -355,6 +355,40 @@ class VendingMachine:
     'Machine is out of stock. Here is your $15.'
     """
     "*** YOUR CODE HERE ***"
+    def __init__(self, pname, pprice):
+        self.prod_name = pname
+        self.prod_price = pprice
+        self.stock = 0
+        self.balance = 0
+
+    def vend(self):
+        if self.stock == 0:
+            return 'Machine is out of stock.'
+        elif self.balance < self.prod_price:
+            return 'You must deposit ${0} more.'.format(self.prod_price - self.balance)
+        else:
+            if self.balance == self.prod_price:
+                self.balance = 0
+                self.stock -= 1
+                return 'Here is your {0}.'.format(self.prod_name)
+            else:
+                change = self.balance - self.prod_price
+                self.balance = 0
+                self.stock -= 1
+                return 'Here is your {0} and ${1} change.'.format(self.prod_name, change)
+
+
+    def restock(self, amount):
+        assert amount >= 0
+        self.stock += amount
+        return 'Current candy stock: {0}'.format(self.stock)
+
+    def deposit(self, money):
+        if self.stock == 0:
+            return 'Machine is out of stock. Here is your ${0}.'.format(money)
+        else:
+            self.balance += money
+            return 'Current balance: ${0}'.format(self.balance)
 
 
 class MissManners:
