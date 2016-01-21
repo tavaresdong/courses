@@ -381,7 +381,7 @@ class VendingMachine:
     def restock(self, amount):
         assert amount >= 0
         self.stock += amount
-        return 'Current candy stock: {0}'.format(self.stock)
+        return 'Current {0} stock: {1}'.format(self.prod_name, self.stock)
 
     def deposit(self, money):
         if self.stock == 0:
@@ -423,6 +423,23 @@ class MissManners:
     'Current balance: $10'
     """
     "*** YOUR CODE HERE ***"
+    def __init__(self, obj):
+        self.callee = obj
+
+    def ask(self, query, *args):
+        # split the query, the first string should be please
+        # and the second string should be the function to call
+        if not query.lower().lstrip().startswith('please'):
+            return 'You must learn to say please first.'
+        func_to_call = query[6:].lstrip()
+        if hasattr(self.callee, func_to_call):
+            func = getattr(self.callee, func_to_call)
+            return func(*args)
+        else:
+            return 'Thanks for asking, but I know not how to {}.'.format(func_to_call)
+
+
+
 
 
 #############
