@@ -209,6 +209,20 @@ def balanced(m):
     False
     """
     "*** YOUR CODE HERE ***"
+    def weight_balance(mob):
+        if is_weight(mob):
+            return True, size(mob)
+        else:
+            left, right = sides(mob)
+            ba_l, wt_l = weight_balance(end(left))
+            ba_r, wt_r = weight_balance(end(right))
+            if not ba_l or not ba_l:
+                return False, 0
+            if wt_l * length(left) != wt_r * length(right):
+                return False, 0
+            return True, wt_l + wt_r
+    balance, total_weight = weight_balance(m)
+    return balance
 
 ############
 # Mutation #
