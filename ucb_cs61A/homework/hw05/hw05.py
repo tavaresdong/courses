@@ -252,6 +252,26 @@ def make_withdraw(balance, password):
     "Your account is locked. Attempts: ['hwat', 'a', 'n00b']"
     """
     "*** YOUR CODE HERE ***"
+    wrong_pws = []
+    def withdraw(deposit, pw):
+        nonlocal wrong_pws
+        nonlocal password
+        nonlocal balance
+        if len(wrong_pws) == 3:
+            return "Your account is locked. Attempts: ['{0}', '{1}', '{2}']".format(wrong_pws[0], \
+                    wrong_pws[1], wrong_pws[2])
+        elif pw != password:
+            wrong_pws += [pw]
+            return 'Incorrect password'
+        else:
+            if balance < deposit:
+                return 'Insufficient funds'
+            balance = balance - deposit
+            return balance
+    return withdraw
+
+
+            
 
 
 def make_joint(withdraw, old_password, new_password):
