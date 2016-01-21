@@ -313,6 +313,16 @@ def make_joint(withdraw, old_password, new_password):
     "Your account is locked. Attempts: ['my', 'secret', 'password']"
     """
     "*** YOUR CODE HERE ***"
+    # test old_password
+    test_withdraw = withdraw(0, old_password)
+    if not isinstance(test_withdraw, int):
+        return test_withdraw 
+    def joint_withdraw(deposit, pw):
+        if pw == new_password:
+            return withdraw(deposit, old_password)
+        else:
+            return withdraw(deposit, pw)
+    return joint_withdraw
 
 
 ###########
