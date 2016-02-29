@@ -28,12 +28,13 @@ public class Board {
     
     /**
      * Calculate the hamming distance by iterating over the N * N board
-     * @return hamming distance(#blocks not on their places), not including the moves made
+     * @return hamming distance(#blocks not on their places), 
+     * not including the moves made
      */
     public int hamming() 
     {
         int ham = -1;
-        for (int i = 0; i <= dim * dim; i++) {
+        for (int i = 0; i < dim * dim; i++) {
             if (board[i / dim][i % dim] != i + 1)
                 ham++;
         }
@@ -74,15 +75,22 @@ public class Board {
     public Board twin() 
     {
         int r1 = 0, c1 = 0, r2 = 0, c2 = 0;
-        for (r1 = 0; r1 < dim; r1++)
+        for (r1 = 0; r1 < dim; r1++) {
             for (c1 = 0; c1 < dim; c1++) {
                 if (board[r1][c1] != 0)
                     break;
             }
-        for (r2 = dim - 1; r2 >= 0; r2--)
+            if (c1 < dim)
+                break;
+        }
+        
+        for (r2 = dim - 1; r2 >= 0; r2--) {
             for (c2 = dim - 1; c2 >= 0; c2--)
                 if (board[r2][c2] != 0)
                     break;
+            if (c2 < dim)
+                break;
+        }
         
         return swapAndCreate(r1, c1, r2, c2);
     }
