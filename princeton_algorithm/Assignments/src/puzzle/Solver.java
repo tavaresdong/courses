@@ -1,3 +1,4 @@
+package puzzle;
 
 import java.util.Comparator;
 import java.util.ArrayDeque;
@@ -8,9 +9,9 @@ import edu.princeton.cs.algs4.StdOut;
 
 public class Solver {
     
-    public static final Comparator<Node> BY_HAMMING   = new ByHamming();
-    public static final Comparator<Node> BY_MANHATTAN = new ByManhattan();
-    private final boolean solvable;
+    private static final Comparator<Node> BY_HAMMING   = new ByHamming();
+    private static final Comparator<Node> BY_MANHATTAN = new ByManhattan();
+    private final boolean svble;
     private final int moves;
     private final ArrayDeque<Board> solution;
     
@@ -69,11 +70,11 @@ public class Solver {
     {        
         Node nd = trySolve(initial);
         if (nd == null) {
-            solvable = false;
+            svble = false;
             moves    = -1;
             solution = null;
         } else {
-            solvable = true;
+            svble = true;
             moves    = nd.moves;
             solution = new ArrayDeque<Board>();
             while (nd != null) {
@@ -85,58 +86,56 @@ public class Solver {
     
     private Node trySolve(Board initial) 
     {
-        MinPQ<Node> pq0 = new MinPQ<Node>(BY_HAMMING);
-        MinPQ<Node> pq1 = new MinPQ<Node>(BY_HAMMING);
+        MinPQ<Node> pq0 = new MinPQ<Node>(BY_MANHATTAN);
+        MinPQ<Node> pq1 = new MinPQ<Node>(BY_MANHATTAN);
         
         pq0.insert(new Node(initial, null, 0, null));
         pq1.insert(new Node(initial.twin(), null, 0, null));
+                
+        boolean solvable = false;
+        boolean twinSolvable = false;
         
-        int turn = 0;
         Node result = null;
-        while (true) {
-            if (turn == 0) {
-                if (!pq0.isEmpty()) {
-                    Node node = pq0.delMin();
-                    if (node.curBoard.isGoal()) {
-                        result = node;
-                        break;
-                    } else {
-                        // Find all neighbors and insert then to pq
-                        for (Board nb : node.curBoard.neighbors()) {
-                            if (nb == node.prevBoard) {
-                                continue;
-                            }
+        
+        while (!solvable && !twinSolvable) {
+            if (!pq0.isEmpty()) {
+                Node node = pq0.delMin();
+                if (node.curBoard.isGoal()) {
+                    result = node;
+                    solvable = true;
+                } else {
+                    // Find all neighbors and insert then to pq
+                    for (Board nb : node.curBoard.neighbors()) {
+                        if (node.prevBoard == null || 
+                            !nb.equals(node.prevBoard)) {
                             pq0.insert(new Node(nb, node.curBoard, 
-                                       node.moves + 1, node));
+                                    node.moves + 1, node));
                         }
                     }
                 }
-                turn = 1;
-            } else {
-                if (!pq1.isEmpty()) {
-                    Node node = pq1.delMin();
-                    if (node.curBoard.isGoal()) {
-                        result = null;
-                        break;
-                    } else {
-                        for (Board nb : node.curBoard.neighbors()) {
-                            if (nb == node.prevBoard) {
-                                continue;
-                            }
+            }
+            if (!pq1.isEmpty()) {
+                Node node = pq1.delMin();
+                if (node.curBoard.isGoal()) {
+                    twinSolvable = true;
+                } else {
+                    for (Board nb : node.curBoard.neighbors()) {
+                        if (node.prevBoard == null || 
+                            !nb.equals(node.prevBoard)) {
                             pq1.insert(new Node(nb, node.curBoard,
-                                                node.moves + 1, node));
+                                    node.moves + 1, node));
                         }
                     }
                 }
-                turn = 0;
             }
         }
+                
         return result;
     }
 
     public boolean isSolvable()
     {
-        return solvable;
+        return svble;
     }
     
     public int moves()
@@ -151,7 +150,7 @@ public class Solver {
     
     public static void main(String[] args)
     {
-        In in = new In("data\\8puzzle\\puzzle04.txt");
+        In in = new In("data\\8puzzle\\puzzle27.txt");
         int N = in.readInt();
         int[][] blocks = new int[N][N];
         for (int i = 0; i < N; i++)

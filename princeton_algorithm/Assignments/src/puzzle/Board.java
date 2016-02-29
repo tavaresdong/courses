@@ -1,3 +1,4 @@
+package puzzle;
 import java.util.ArrayList;
 
 import edu.princeton.cs.algs4.In;
@@ -49,13 +50,14 @@ public class Board {
     public int manhattan() 
     {
         int man = 0;
-        for (int i = 0; i <= dim * dim; i++) {
+        for (int i = 0; i < dim * dim; i++) {
             int r = i / dim, c = i % dim;
             if (board[r][c] == 0)
                 continue;
-            int realPosMan = (board[r][c] - 1) / dim + 
-                    (board[r][c] - 1) % dim;
-            man += (realPosMan - r - c);
+            int manr = (board[r][c] - 1) / dim;
+            int manc = (board[r][c] - 1) % dim;
+
+            man += Math.abs(manr - r) + Math.abs(manc - c);
         }
         return man;
     }
@@ -159,20 +161,23 @@ public class Board {
     
     public String toString() 
     {
-        String output = "";
-        output += dim;
-        output += "\n";
+        StringBuffer output = new StringBuffer();
+        output.append(dim);
+        output.append("\n");
         for (int i = 0; i < dim; i++) {
-            for (int j = 0; j < dim; j++)
-                output += (board[i][j] + " ");
-            output += "\n";
+            for (int j = 0; j < dim; j++) {
+                output.append(board[i][j]);
+                if (j < dim - 1)
+                    output.append(" ");
+            }
+            output.append("\n");
         }
-        return output;
+        return output.toString();
     }
 
     public static void main(String[] args) 
     {
-        In in = new In("data\\8puzzle\\puzzle00.txt");
+        In in = new In("data\\8puzzle\\puzzle09.txt");
         int N = in.readInt();
         int[][] blocks = new int[N][N];
         for (int i = 0; i < N; i++)
@@ -182,8 +187,5 @@ public class Board {
         Board initial = new Board(blocks);
         StdOut.println(initial);
         
-        Iterable<Board> nbs = initial.neighbors();
-        for (Board nb : nbs) 
-            StdOut.println(nb);
     }
 }
