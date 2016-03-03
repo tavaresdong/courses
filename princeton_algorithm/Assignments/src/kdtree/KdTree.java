@@ -1,3 +1,4 @@
+package kdtree;
 import java.util.TreeSet;
 
 import edu.princeton.cs.algs4.Point2D;
@@ -45,34 +46,43 @@ public class KdTree {
         if (p == null)
             throw new NullPointerException();
         root = put(root, p, 0, 0.0, 0.0, 1.0, 1.0);
-        sz++;
+        
     }
     
     private KdNode put(KdNode nd, Point2D p, int turn,
                        double xmin, double ymin, 
                        double xmax, double ymax)
     {
-        if (nd == null)
+        if (nd == null) {
+            sz++;
             return new KdNode(p, null, null, 
                               new RectHV(xmin, ymin, xmax, ymax));
-        if (turn == 0) {
-            if (p.x() < nd.point.x()) {
+        }
+        
+        // Neglect nodes that collides with one
+        // Already in the tree
+        double ndx = nd.point.x();
+        double ndy = nd.point.y();
+        if (nd.point.equals(p))
+            return nd;
+        else if (turn == 0) {
+            if (p.x() < ndx) {
                 nd.left = put(nd.left, p, 1 - turn, 
                            xmin, ymin, 
-                           Math.min(nd.point.x(), xmax), ymax);
+                           Math.min(ndx, xmax), ymax);
             } else {
                 nd.right = put(nd.right, p, 1 - turn, 
-                           Math.max(nd.point.x(), xmin), ymin,
+                           Math.max(ndx, xmin), ymin,
                            xmax, ymax);
             }
         } else {
-            if (p.y() < nd.point.y()) {
+            if (p.y() < ndy) {
                 nd.left =  put(nd.left, p, 1 - turn,
                            xmin, ymin,
-                           xmax, Math.min(nd.point.y(), ymax));
+                           xmax, Math.min(ndy, ymax));
             } else {
                 nd.right = put(nd.right, p, 1 - turn,
-                           xmin, Math.max(nd.point.y(), ymin),
+                           xmin, Math.max(ndy, ymin),
                            xmax, ymax);
             }
         }
@@ -181,16 +191,17 @@ public class KdTree {
         if (p == null)
             throw new NullPointerException();
         
-        Point2D result = find(root, Double.MAX_VALUE, p);
+        Point2D result = find(root, Double.MAX_VALUE, p, 0);
         return result;
     }
     
 
-    private Point2D find(KdNode nd, double curDist, Point2D target) 
+    private Point2D find(KdNode nd, double curDist, Point2D target, int turn) 
     {
-        if (nd == null) 
-            return null;
         Point2D curClosest = null;
+        
+        if (nd == null) 
+            return curClosest;
         
         // Pruning
         if (nd.rect.distanceTo(target) > curDist) {
@@ -202,19 +213,32 @@ public class KdTree {
             curDist    = nd.point.distanceTo(target);
         }
         
-        Point2D left = find(nd.left, curDist, target);
-        Point2D right = find(nd.right, curDist, target);
-        
-        if (left != null && left.distanceTo(target) < curDist) {
-            curClosest = left;
-            curDist = left.distanceTo(target);
+        // Always search the plane that target is on according to
+        // current node
+        if ((turn == 0 && target.x() < nd.point.x()) ||
+            (turn == 1 && target.y() < nd.point.y())) {
+            Point2D left = find(nd.left, curDist, target, 1 - turn);
+            if (left != null && left.distanceTo(target) < curDist) {
+                curClosest = left;
+                curDist = left.distanceTo(target);
+            }
+            Point2D right = find(nd.right, curDist, target, 1 - turn);
+            if (right != null && right.distanceTo(target) < curDist) {
+                curClosest = right;
+                curDist = right.distanceTo(target);
+            }
+        } else {
+            Point2D right = find(nd.right, curDist, target, 1 - turn);
+            if (right != null && right.distanceTo(target) < curDist) {
+                curClosest = right;
+                curDist = right.distanceTo(target);
+            }
+            Point2D left = find(nd.left, curDist, target, 1 - turn);
+            if (left != null && left.distanceTo(target) < curDist) {
+                curClosest = left;
+                curDist = left.distanceTo(target);
+            }
         }
-        
-        if (right != null && right.distanceTo(target) < curDist) {
-            curClosest = right;
-            curDist = right.distanceTo(target);
-        }
-        
         return curClosest;
     }
 

@@ -1,3 +1,4 @@
+package kdtree;
 
 import java.util.TreeSet;
 
