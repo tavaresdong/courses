@@ -18,7 +18,7 @@ import edu.princeton.cs.algs4.StdDraw;
 public class NearestNeighborVisualizer {
 
     public static void main(String[] args) {
-        String filename = args[0];
+        String filename = "data\\kdtree\\input20k.txt";
         In in = new In(filename);
 
         StdDraw.show(0);
