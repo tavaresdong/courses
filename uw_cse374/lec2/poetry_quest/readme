@@ -1,0 +1,37 @@
+I've constructed a puzzle to give you practice using the shell. You'll
+need to navigate the file system, run programs, and use I/O
+redirection.
+
+The puzzle is this: I've hidden the first few lines of my favorite
+poem among the files here. Your task is to discover what these lines
+are. There are a few challenges:
+
+     >> Not all the files contain valid data, and you will need to
+        determine which files are valid and which are decoys. To do
+        this, you can use the sha256sum program. When given a
+        filename, sha256sum computes a 256-bit value based on the
+        contents of that file (SHA-256 is part of a family of
+        cryptographic algorithms developed by the NSA). I have listed
+        the SHA-256 values of the valid files in the file called
+        validated_sha256.
+
+     >> The content of the files has been encoded in binary. That is,
+        each letter has been converted to its standard binary
+        represetation (e.g., A -> 010000001). I have provided you with
+        a program called "decode" that reads text from stdin and
+        converts it from binary to the equivalent ASCII text.
+
+     >> The data was not split among the files in byte-divisible
+        chunks (i.e., the binary data in a given file may start and
+        end in the middle of a letter), so you will need to combine
+        the files in the correct order. Use the timestamps for this
+        purpose: the first file has the oldest timestamp, the second
+        file has the second oldest timestamp, and so on.
+
+Some hints:
+
+     >> The man page for ls may have useful information
+
+     >> Remember that > redirects stdout to a file, < redirects stdin
+        to come from a file, and | connects the stdout of one command
+        to the stdin of another

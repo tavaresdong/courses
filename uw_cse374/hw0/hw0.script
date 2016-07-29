@@ -1,0 +1,22 @@
+Script started on Thu 28 Jul 2016 05:53:54 PM PDT
+]0;dyc@ubuntu: ~/courses/uw_cse374/hw0[01;32mdyc@ubuntu[00m:[01;34m~/courses/uw_cse374/hw0[00m$ whoami
+dyc
+]0;dyc@ubuntu: ~/courses/uw_cse374/hw0[01;32mdyc@ubuntu[00m:[01;34m~/courses/uw_cse374/hw0[00m$ echo $SHELL
+/bin/bash
+]0;dyc@ubuntu: ~/courses/uw_cse374/hw0[01;32mdyc@ubuntu[00m:[01;34m~/courses/uw_cse374/hw0[00m$ pwd
+/home/dyc/courses/uw_cse374/hw0
+]0;dyc@ubuntu: ~/courses/uw_cse374/hw0[01;32mdyc@ubuntu[00m:[01;34m~/courses/uw_cse374/hw0[00m$ uname -a
+Linux ubuntu 4.4.0-21-generic #37-Ubuntu SMP Mon Apr 18 18:33:37 UTC 2016 x86_64 x86_64 x86_64 GNU/Linux
+]0;dyc@ubuntu: ~/courses/uw_cse374/hw0[01;32mdyc@ubuntu[00m:[01;34m~/courses/uw_cse374/hw0[00m$ gc --version -std=c11
+The program 'gc' is currently not installed. You can install it by typing:
+sudo apt install graphviz
+]0;dyc@ubuntu: ~/courses/uw_cse374/hw0[01;32mdyc@ubuntu[00m:[01;34m~/courses/uw_cse374/hw0[00m$ gc --version -std=c11[C[1@c
+gcc (Ubuntu 5.3.1-14ubuntu2) 5.3.1 20160413
+Copyright (C) 2015 Free Software Foundation, Inc.
+This is free software; see the source for copying conditions.  There is NO
+warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+
+]0;dyc@ubuntu: ~/courses/uw_cse374/hw0[01;32mdyc@ubuntu[00m:[01;34m~/courses/uw_cse374/hw0[00m$ exit
+exit
+
+Script done on Thu 28 Jul 2016 05:54:32 PM PDT
