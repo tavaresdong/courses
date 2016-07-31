@@ -21,8 +21,9 @@ while read -r line
 do
     url=$line
     echo "Performing measurement on <$url>"
-    size=$(./perform-measurement.sh $url)  
-    if [ -z $size ]
+    size=`./perform-measurement.sh $url`
+    echo $size
+    if [ $size -eq 0 ]
     then
         echo "...failed"
     else
