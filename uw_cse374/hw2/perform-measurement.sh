@@ -2,7 +2,6 @@
 
 set -e
 
-tmpname=performance_measure_tmp
 
 if [ $# -ne 1 ]
 then
@@ -10,12 +9,13 @@ then
     echo 0
 else
     url=$1
-    wget -q -O ${tmpname} $url
+    tmpname=$(mktemp -q)    
+    wget -t 10 -T 10 -q -O ${tmpname} $url
     # If donwload failed, output 0
     if [ $? -ne 0 ]
     then
         echo 0
     fi
     wc -c ${tmpname} | awk {'print $1'}
-    rm ${tmpname}
+    rm -f ${tmpname}
 fi
