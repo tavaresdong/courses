@@ -117,4 +117,17 @@ void print_trie(struct trie_node* root)
     print_trie_helper(0, root);
 }
 
+struct trie_node* search_trie(struct trie_node* trie, 
+                        const char* nums)
+{
+    struct trie_node* cur = trie;
+    int i = 0;
+    for (; cur != NULL && i < strlen(nums); ++i)
+    {
+        int ind = (nums[i] == '#')? 8 : nums[i] - '2';
+        cur = cur->child[ind];
+    }
+    return cur;
+}
+
 

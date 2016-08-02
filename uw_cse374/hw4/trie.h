@@ -23,4 +23,6 @@ extern void insert_word(struct trie_node* root,
 // Print the trie structure
 extern void print_trie(struct trie_node* root);
 
+extern struct trie_node* search_trie(struct trie_node* trie, const char* nums);
+
 #endif
