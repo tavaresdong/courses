@@ -63,6 +63,7 @@ bool read_data(const char* filename, struct trie_node* trie)
         fprintf(stderr, "Error while reading dictionary\n");
         return false;
     }
+    fclose(file);
     return true;
 }
 
@@ -123,5 +124,6 @@ int main(int argc, char **argv)
             }
         }
     }
+    delete_trie(trie);
     exit(EXIT_SUCCESS);
 }

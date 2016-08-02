@@ -50,7 +50,7 @@ void insert_word(struct trie_node* root,
         if (num < 0 || num > 7)
         {
             fprintf(stderr, "Invalid number :%s\n", nums);
-            exit(EXIT_FAILURE);
+            return;
         }
         if (cur->child[num] == NULL)
         {
@@ -81,7 +81,7 @@ void print_trie_helper(int cnt, struct trie_node* root)
     if (root == NULL)
     {
         fprintf(stderr, "Trie is NULL\n");
-        exit(EXIT_FAILURE);
+        return;
     }
 
     for (int i = 0; i < cnt; i++)
