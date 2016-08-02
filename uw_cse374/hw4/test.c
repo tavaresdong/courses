@@ -13,10 +13,20 @@ void test_create_trie_node()
     assert(inter_node->word == false);
     assert(end_node->isEnd == true);
     assert(strcmp(end_node->word, "hello") == 0);
-    fprintf(stdout, "word is %s\n", end_node->word);
+}
+
+void test_insert_node()
+{
+    struct trie_node* trie = create_empty_trie();
+    insert_word(trie, "22737", "acres");
+    //insert_word(trie, "2273", "acre");
+    insert_word(trie, "729", "pax");
+    insert_word(trie, "22737", "bards");
+    print_trie(trie);
 }
 
 int main(int argc, char **argv)
 {
     test_create_trie_node();
+    test_insert_node();   
 }

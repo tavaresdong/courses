@@ -12,5 +12,15 @@ struct trie_node
 // Create a trie_node
 extern struct trie_node* create_trie_node(bool isEnd, const char* word);
 
+extern struct trie_node* create_empty_trie();
+
+// Insert a word (its seq of numbers provided as nums)
+// To the tree root
+extern void insert_word(struct trie_node* root, 
+                        const char* nums,
+                        const char* word);
+
+// Print the trie structure
+extern void print_trie(struct trie_node* root);
 
 #endif
