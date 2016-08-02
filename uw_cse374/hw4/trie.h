@@ -1,0 +1,16 @@
+#ifndef TRIE_H_
+#define TRIE_H_
+#include <stdbool.h>
+
+struct trie_node 
+{
+    bool isEnd;           // This node is end node or not
+    char *word;           // If this node is end node, the corresponding word
+    struct trie_node* child[9];  // The children 2:0 3:1 ... #:8
+};
+
+// Create a trie_node
+extern struct trie_node* create_trie_node(bool isEnd, const char* word);
+
+
+#endif
