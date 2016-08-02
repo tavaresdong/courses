@@ -11,3 +11,13 @@ void* guarded_malloc(size_t sz)
     }
     return ret;
 }
+
+void guarded_free(void* ptr)
+{
+    if (ptr == NULL)
+    {
+        fprintf(stderr, "The memory to be freed is NULL\n");
+        exit(EXIT_FAILURE);
+    }
+    free(ptr);
+}

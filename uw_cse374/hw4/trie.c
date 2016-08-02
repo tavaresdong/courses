@@ -131,3 +131,24 @@ struct trie_node* search_trie(struct trie_node* trie,
 }
 
 
+void delete_trie(struct trie_node* trie)
+{
+    if (trie == NULL)
+    {
+        return;
+    }
+
+    if (trie->word != NULL)
+    {
+        guarded_free(trie->word);
+    }
+
+    for (int i = 0; i < 9; i++)
+    {
+        if (trie->child[i] != NULL)
+        {
+            delete_trie(trie->child[i]);
+        }       
+    }
+    guarded_free(trie);
+}

@@ -25,4 +25,5 @@ extern void print_trie(struct trie_node* root);
 
 extern struct trie_node* search_trie(struct trie_node* trie, const char* nums);
 
+extern void delete_trie(struct trie_node* trie);
 #endif
