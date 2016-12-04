@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html>
+
+  <head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <title>Exercise 9 - CSE 333 15wi</title>
+  <meta name="description" content="Systems Programming">
+
+  <link rel="canonical" href="http://courses.cs.washington.edu/courses/cse333/15wi/exercises/ex09.html">
+
+  <link href="//fonts.googleapis.com/css?family=Open+Sans" rel="stylesheet">
+
+  <link href="/courses/cse333/15wi/bower_components/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="/courses/cse333/15wi/css/main.css">
+
+  <script>(function(w,d,u){w.readyQ=[];w.bindReadyQ=[];function p(x,y){if(x=="ready"){w.bindReadyQ.push(y);}else{w.readyQ.push(x);}};var a={ready:p,bind:p};w.$=function(f){if(f===d||f===u){return a}else{p(f)}}})(window,document)</script>
+
+
+</head>
+
+
+  <body>
+
+    <header class="site-header">
+
+<div class="navbar navbar-inverse navbar-fixed-top" role="navigation">
+  <div class="container-fluid">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+        <span class="sr-only">Toggle navigation</span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="/courses/cse333/15wi/">CSE 333: Systems Programming</a>
+    </div>
+    <div class="collapse navbar-collapse">
+      <ul class="nav navbar-nav">
+        <li>
+          <a href="/courses/cse333/15wi/">Home</a>
+        <li>
+          <a href="/courses/cse333/15wi/overview.html">Overview</a>
+        <li>
+          <a href="/courses/cse333/15wi/schedule.html">Schedule</a>
+        <li>
+          <a href="/courses/cse333/15wi/resources.html">Resources</a>
+      </ul>
+      <ul class="nav navbar-nav navbar-right hidden-xs">
+        <li><a>15wi</a></li>
+      </ul>
+    </div><!-- /.nav-collapse -->
+  </div><!-- /.container -->
+</div><!-- /.navbar -->
+
+</header>
+
+
+    <div class="container">
+    <div class="page-header" style="margin-top:10px">
+  <h1>Exercise 9</h1>
+  <p>Due: Mon, 02 Feb 2015 11:00:00 -0800</p>
+</div>
+
+<article class="post-content">
+<p>Write a C++ program that tests whether or not class instances are
+passed by value or passed by reference. Specifically:</p>
+
+<ul>
+  <li>In file <code>IntPair.h</code>, declare a class called <code>IntPair</code>.
+    <ul>
+      <li>The constructor to the class should accept two integers and
+store them in private instance variables.</li>
+      <li>There should be a public method called <code>Get</code> that returns the two
+integers through output parameters.</li>
+      <li>There should be a public method called <code>Set</code> that sets the two integers.</li>
+    </ul>
+  </li>
+  <li>In file <code>IntPair.cc</code>, implement the class.</li>
+  <li>In file <code>ex9.cc</code>, write a function called <code>Test</code> that accepts an
+instance of <code>IntPair</code> as an argument, and uses <code>Get()</code> and <code>Set()</code> to
+increment each of the two integers stored by the instance by one.</li>
+  <li>In file <code>ex9.cc</code>, write a <code>main</code> function that instantiates an
+instance of <code>IntPair</code>, calls <code>Test()</code>, and then determines whether
+<code>IntPair</code> was passed by value or passed by reference to <code>Test</code>.
+    <ul>
+      <li>If it was passed by value, print out “Is pass by value\n”
+(without the quotes, and that’s a newline character at the end).</li>
+      <li>If it was passed by reference, print out “Is pass by reference\n”
+(without the quotes, and that’s a newline character at the end).</li>
+    </ul>
+  </li>
+</ul>
+
+<p>Your code must:</p>
+
+<ul>
+  <li>compile without errors or warnings on CSE Linux machines (lab
+workstations, attu, or CSE home VM) using <code>g++ -g -Wall -o ex9 *.cc</code>;</li>
+  <li>do not submit a Makefile (you can use <code>-std=c++11</code> if needed,
+but it wasn’t used for the sample solution);</li>
+  <li>have no crashes, memory leaks, or memory errors on CSE linux machines;</li>
+  <li>follow the style guidelines we covered in class, including naming
+conventions for classes, methods, and instance variables (if in
+doubt, follow the Google C++ style guide, but you may use streams
+and import directives), proper use of const, and appropriate comments
+(cpplint.py may be helpful in flagging potential style problems);</li>
+  <li>be pretty: the formatting, modularization, variable and function
+names, and so on must make us smile rather than cry;</li>
+  <li>be robust: you should think about handling bogus input from the
+user, and you should handle hard-to-handle cases (if there are any)
+gracefully;</li>
+  <li>have a comment at the top of your source files with your name,
+student number, and CSE or UW email address.</li>
+</ul>
+
+<p>You should submit your exercise using the assignment dropbox linked
+on the main course web page.</p>
+
+</article>
+
+<script>
+$(document).ready(function () {
+  $("h2").addClass("page-header");
+});
+</script>
+
+    <footer class="site-footer">
+
+<div>
+  <a href="//www.washington.edu/online/terms/">UW Site Use Agreement</a>
+</div>
+
+<div>
+407937e9f2 2015-03-04 13:07:58 -0800
+
+</div>
+
+</footer>
+
+<script src="/courses/cse333/15wi/bower_components/jquery/dist/jquery.min.js"></script>
+<script src="/courses/cse333/15wi/bower_components/bootstrap/dist/js/bootstrap.min.js"></script>
+
+<script>(function($,d){$.each(readyQ,function(i,f){$(f)});$.each(bindReadyQ,function(i,f){$(d).bind("ready",f)})})(jQuery,document)</script>
+
+    </div>
+
+    
+
+  </body>
+
+</html>

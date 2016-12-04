@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html>
+
+  <head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <title>Exercise 7 - CSE 333 15wi</title>
+  <meta name="description" content="Systems Programming">
+
+  <link rel="canonical" href="http://courses.cs.washington.edu/courses/cse333/15wi/exercises/ex07.html">
+
+  <link href="//fonts.googleapis.com/css?family=Open+Sans" rel="stylesheet">
+
+  <link href="/courses/cse333/15wi/bower_components/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="/courses/cse333/15wi/css/main.css">
+
+  <script>(function(w,d,u){w.readyQ=[];w.bindReadyQ=[];function p(x,y){if(x=="ready"){w.bindReadyQ.push(y);}else{w.readyQ.push(x);}};var a={ready:p,bind:p};w.$=function(f){if(f===d||f===u){return a}else{p(f)}}})(window,document)</script>
+
+
+</head>
+
+
+  <body>
+
+    <header class="site-header">
+
+<div class="navbar navbar-inverse navbar-fixed-top" role="navigation">
+  <div class="container-fluid">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+        <span class="sr-only">Toggle navigation</span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="/courses/cse333/15wi/">CSE 333: Systems Programming</a>
+    </div>
+    <div class="collapse navbar-collapse">
+      <ul class="nav navbar-nav">
+        <li>
+          <a href="/courses/cse333/15wi/">Home</a>
+        <li>
+          <a href="/courses/cse333/15wi/overview.html">Overview</a>
+        <li>
+          <a href="/courses/cse333/15wi/schedule.html">Schedule</a>
+        <li>
+          <a href="/courses/cse333/15wi/resources.html">Resources</a>
+      </ul>
+      <ul class="nav navbar-nav navbar-right hidden-xs">
+        <li><a>15wi</a></li>
+      </ul>
+    </div><!-- /.nav-collapse -->
+  </div><!-- /.container -->
+</div><!-- /.navbar -->
+
+</header>
+
+
+    <div class="container">
+    <div class="page-header" style="margin-top:10px">
+  <h1>Exercise 7</h1>
+  <p>Due: Mon, 26 Jan 2015 11:00:00 -0800</p>
+</div>
+
+<article class="post-content">
+<p>Write a C program that:</p>
+
+<ul>
+  <li>accepts a directory name as a command-line argument;</li>
+  <li>scans through the directory looking for filenames that end
+in the four characters <code>.txt</code>;</li>
+  <li>reads the contents of those files using <code>open</code> / <code>read</code> / <code>close</code>,
+copying the contents to <code>stdout</code>.</li>
+</ul>
+
+<p>Your code must:</p>
+
+<ul>
+  <li>compile without errors or warnings on CSE Linux machines (lab workstations, attu, or CSE home VM);</li>
+  <li>have no crashes, memory leaks, or memory errors on CSE linux machines;</li>
+  <li>be contained in a single file called <code>ex7.c</code> that compiles with the command
+<code>gcc -Wall -g -std=c11 -o ex7 ex7.c</code>—do not submit a Makefile;</li>
+  <li>be pretty: the formatting, modularization, variable and function
+names, and so on must make us smile rather than cry (suggestion:
+clint);</li>
+  <li>be robust: you should think about handling bogus input from the
+user, and you should handle hard-to-handle cases (if there are any)
+gracefully.</li>
+  <li>have a comment at the top of your <code>.c</code> file with your name, student
+number, and CSE or UW email address.</li>
+</ul>
+
+<p>You should submit your exercise using the assignment dropbox linked on the main course web page.</p>
+
+</article>
+
+<script>
+$(document).ready(function () {
+  $("h2").addClass("page-header");
+});
+</script>
+
+    <footer class="site-footer">
+
+<div>
+  <a href="//www.washington.edu/online/terms/">UW Site Use Agreement</a>
+</div>
+
+<div>
+407937e9f2 2015-03-04 13:07:58 -0800
+
+</div>
+
+</footer>
+
+<script src="/courses/cse333/15wi/bower_components/jquery/dist/jquery.min.js"></script>
+<script src="/courses/cse333/15wi/bower_components/bootstrap/dist/js/bootstrap.min.js"></script>
+
+<script>(function($,d){$.each(readyQ,function(i,f){$(f)});$.each(bindReadyQ,function(i,f){$(d).bind("ready",f)})})(jQuery,document)</script>
+
+    </div>
+
+    
+
+  </body>
+
+</html>
