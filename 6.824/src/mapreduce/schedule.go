@@ -2,7 +2,6 @@ package mapreduce
 
 import (
 	"fmt"
-	"sync"
 )
 
 // schedule starts and waits for all tasks in the given phase (Map or Reduce).
@@ -29,11 +28,11 @@ func (mr *Master) schedule(phase jobPhase) {
 	//
 
 	// Use WaitGroup to wait for all tasks to finish
-	var wg sync.WaitGroup
+	// var wg sync.WaitGroup
+
+	wt := make(chan int, ntasks)
 	for i := 0; i < ntasks; i++ {
-		wg.Add(1)
-		go func(taskNum int) {
-			defer wg.Done()
+		go func(taskNum int, c chan int) {
 			dtarg := DoTaskArgs{}
 			dtarg.JobName = mr.jobName
 			dtarg.File = mr.files[taskNum]
@@ -42,8 +41,6 @@ func (mr *Master) schedule(phase jobPhase) {
 			dtarg.NumOtherPhase = nios
 			for {
 				availWorker := <- mr.registerChannel
-
-				// RPC call worker to run synchronously
 				ok := call(availWorker, "Worker.DoTask", &dtarg, new(struct{}))
 				if ok {
 					go func() {
@@ -52,10 +49,12 @@ func (mr *Master) schedule(phase jobPhase) {
 					break;
 				}
 			}
-		}(i)
+			c <- 1
+		}(i, wt)
 	}
 
-	// Wait for all tasks to complete
-	wg.Wait()
+	for j := 0; j < ntasks; j++ {
+		<- wt
+	}
 	fmt.Printf("Schedule: %v phase done\n", phase)
 }
