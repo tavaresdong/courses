@@ -69,7 +69,7 @@ func doMap(
 	// Store the key value to file according to the hashed key
 	for _, kv := range kvs {
 		// Decide which file to partition this key to
-		idx := ihash(kv.Value)
+		idx := ihash(kv.Key)
 
 		// Encode the kv as json to the file
 		encoders[idx % uint32(nReduce)].Encode(&kv)

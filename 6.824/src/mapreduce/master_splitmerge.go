@@ -17,6 +17,7 @@ func (mr *Master) merge() {
 	for i := 0; i < mr.nReduce; i++ {
 		p := mergeName(mr.jobName, i)
 		fmt.Printf("Merge: read %s\n", p)
+		debug("Merge file %v", i)
 		file, err := os.Open(p)
 		if err != nil {
 			log.Fatal("Merge: ", err)
