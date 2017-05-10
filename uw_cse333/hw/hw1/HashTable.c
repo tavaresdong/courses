@@ -194,7 +194,6 @@ int InsertHashTable(HashTable table,
   Verify333(insertchain != NULL);
   HTKeyValue* location = FindKVInHashTable(insertchain, newkeyvalue.key);
 
-
   if (location == NULL) {
     HTKeyValue* payload = (HTKeyValue*) malloc(sizeof(HTKeyValue));
     Verify333(payload != NULL);
@@ -218,9 +217,16 @@ int LookupHashTable(HashTable table,
   Verify333(table != NULL);
 
   // Step 2 -- implement LookupHashTable.
+  HWSize_t insertbucket;
+  LinkedList insertchain;
 
-
-  return 0;  // you may need to change this return value.
+  insertbucket = HashKeyToBucketNum(table, key);
+  insertchain = table->buckets[insertbucket];
+  HTKeyValue* location = FindKVInHashTable(insertchain, key);
+  if (location == NULL) return 0;
+  
+  *keyvalue = *location;
+  return 1;  // you may need to change this return value.
 }
 
 int RemoveFromHashTable(HashTable table,
