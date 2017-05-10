@@ -1185,9 +1185,9 @@ threading_list = (
     ('gmtime(', 'gmtime_r('),
     ('localtime(', 'localtime_r('),
     ('rand(', 'rand_r('),
+    ('readdir(', 'readdir_r('),
     ('strtok(', 'strtok_r('),
     ('ttyname(', 'ttyname_r('),
-# exception: using readdir is preferred; readdir_r is worse
     )
 
 

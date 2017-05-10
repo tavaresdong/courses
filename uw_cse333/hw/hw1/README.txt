@@ -38,6 +38,9 @@ Inside this directory, you'll find the following:
 
  - LinkedList.c: the implementation of the linked list module.
 
+ - HashTable.h, HashTable_priv.h, HashTable.c: similar to the linked list
+   files, but for a chained hash table implementation.
+
  - test_*.cc, test_*.h: the unit test code.  Look at test_linkedlist.cc
    for an example of the unit tests that exercise the linked list.
 
@@ -49,7 +52,7 @@ After you compile, you'll have access to two executables:
    well. Try to come up with other test cases we might not have
    implemented, of course.
 
- - example_program_ll:  exercises the linked list
+ - example_program_ll, example_program_ht:  exercises the linked list
    and hash table code, respectively.
 
 
