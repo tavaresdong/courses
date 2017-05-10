@@ -153,6 +153,23 @@ HWSize_t HashKeyToBucketNum(HashTable ht, HTKey_t key) {
   return key % ht->num_buckets;
 }
 
+HTKeyValuePtr FindKVInHashTable(LinkedList list, HTKey_t key)
+{
+  if (list == NULL) return NULL;
+  if (NumElementsInLinkedList(list) == 0U) return NULL;
+  LLIter iter = LLMakeIterator(list, 0);
+  LLPayload_t payload = NULL;
+  do {
+    LLIteratorGetPayload(iter, &payload);
+    Verify333(payload != NULL);
+
+    if (((HTKeyValue*)payload)->key == key)
+      return payload;
+    LLIteratorNext(iter);
+  } while (LLIteratorHasNext(iter));
+  return NULL;
+}
+
 int InsertHashTable(HashTable table,
                     HTKeyValue newkeyvalue,
                     HTKeyValue *oldkeyvalue) {
@@ -173,7 +190,24 @@ int InsertHashTable(HashTable table,
   // and optionally remove a key within a chain, rather than putting
   // all that logic inside here.  You might also find that your helper
   // can be reused in steps 2 and 3.
+  
+  Verify333(insertchain != NULL);
+  HTKeyValue* location = FindKVInHashTable(insertchain, newkeyvalue.key);
 
+
+  if (location == NULL) {
+    HTKeyValue* payload = (HTKeyValue*) malloc(sizeof(HTKeyValue));
+    Verify333(payload != NULL);
+    payload->key = newkeyvalue.key;
+    payload->value = newkeyvalue.value;
+    AppendLinkedList(insertchain, payload);
+    return 1;
+  } else {
+    *oldkeyvalue = *location;
+    location->key = newkeyvalue.key;
+    location->value = newkeyvalue.value;
+    return 2;
+  }
 
   return 0;  // You may need to change this return value.
 }
