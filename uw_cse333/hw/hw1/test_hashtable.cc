@@ -80,6 +80,7 @@ TEST_F(Test_HashTable, HTSTestInsertLookupRemove) {
     newkv.key = i;
     newkv.value = static_cast<void *>(np);
     ASSERT_EQ(1, InsertHashTable(table, newkv, &old));
+    ASSERT_EQ(static_cast<HWSize_t>(i+1), NumElementsInHashTable(table));
 
     // test double insert
     ASSERT_EQ(2, InsertHashTable(table, newkv, &old));

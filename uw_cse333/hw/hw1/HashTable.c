@@ -153,7 +153,7 @@ HWSize_t HashKeyToBucketNum(HashTable ht, HTKey_t key) {
   return key % ht->num_buckets;
 }
 
-HTKeyValuePtr FindKVInHashTable(LinkedList list, HTKey_t key)
+LLIter FindKVInHashTable(LinkedList list, HTKey_t key)
 {
   if (list == NULL) return NULL;
   if (NumElementsInLinkedList(list) == 0U) return NULL;
@@ -163,10 +163,10 @@ HTKeyValuePtr FindKVInHashTable(LinkedList list, HTKey_t key)
     LLIteratorGetPayload(iter, &payload);
     Verify333(payload != NULL);
 
-    if (((HTKeyValue*)payload)->key == key)
-      return payload;
-    LLIteratorNext(iter);
-  } while (LLIteratorHasNext(iter));
+    HTKey_t nkey = ((HTKeyValue*) payload)->key;
+    if (nkey == key)
+      return iter;
+  } while (LLIteratorNext(iter));
   return NULL;
 }
 
@@ -192,7 +192,7 @@ int InsertHashTable(HashTable table,
   // can be reused in steps 2 and 3.
   
   Verify333(insertchain != NULL);
-  HTKeyValue* location = FindKVInHashTable(insertchain, newkeyvalue.key);
+  LLIter location = FindKVInHashTable(insertchain, newkeyvalue.key);
 
   if (location == NULL) {
     HTKeyValue* payload = (HTKeyValue*) malloc(sizeof(HTKeyValue));
@@ -200,11 +200,14 @@ int InsertHashTable(HashTable table,
     payload->key = newkeyvalue.key;
     payload->value = newkeyvalue.value;
     AppendLinkedList(insertchain, payload);
+    table->num_elements += 1;
     return 1;
   } else {
-    *oldkeyvalue = *location;
-    location->key = newkeyvalue.key;
-    location->value = newkeyvalue.value;
+    LLPayload_t payload = NULL;
+    LLIteratorGetPayload(location, &payload);
+    *oldkeyvalue = *((HTKeyValue*) payload);
+    ((HTKeyValue*) payload)->key = newkeyvalue.key;
+    ((HTKeyValue*) payload)->value = newkeyvalue.value;
     return 2;
   }
 
@@ -222,10 +225,12 @@ int LookupHashTable(HashTable table,
 
   insertbucket = HashKeyToBucketNum(table, key);
   insertchain = table->buckets[insertbucket];
-  HTKeyValue* location = FindKVInHashTable(insertchain, key);
+  LLIter location = FindKVInHashTable(insertchain, key);
   if (location == NULL) return 0;
   
-  *keyvalue = *location;
+  LLPayload_t payload = NULL;
+  LLIteratorGetPayload(location, &payload);
+  *keyvalue = *((HTKeyValue*) payload);
   return 1;  // you may need to change this return value.
 }
 
@@ -235,8 +240,22 @@ int RemoveFromHashTable(HashTable table,
   Verify333(table != NULL);
 
   // Step 3 -- implement RemoveFromHashTable.
+  HWSize_t insertbucket;
+  LinkedList insertchain;
 
-  return 0;  // you may need to change this return value.
+  insertbucket = HashKeyToBucketNum(table, key);
+  insertchain = table->buckets[insertbucket];
+  LLIter location = FindKVInHashTable(insertchain, key);
+  if (location == NULL) return 0;
+  else {
+    LLPayload_t payload = NULL;
+    LLIteratorGetPayload(location, &payload);
+    *keyvalue = *((HTKeyValue*) payload);
+    LLIteratorDelete(location, LLNullFree);
+    table->num_elements -= 1;
+    return 1;
+  }
+  return -1;  // you may need to change this return value.
 }
 
 HTIter HashTableMakeIterator(HashTable table) {
@@ -294,8 +313,27 @@ int HTIteratorNext(HTIter iter) {
   Verify333(iter != NULL);
 
   // Step 4 -- implement HTIteratorNext.
-
-
+  if (!iter->is_valid) return 0;
+  if (LLIteratorHasNext(iter->bucket_it)) {
+    LLIteratorNext(iter->bucket_it);
+    return 1;
+  } else {
+    iter->bucket_num++;
+    if (iter->bucket_num >= iter->ht->num_buckets) {
+      iter->is_valid = false;
+      return 0;
+    } else {
+      for (; iter->bucket_num < iter->ht->num_buckets; ++iter->bucket_num) {
+        LinkedList chain = iter->ht->buckets[iter->bucket_num];
+        if (NumElementsInLinkedList(chain) != 0U) {
+          iter->bucket_it = LLMakeIterator(chain, 0);
+          return 1;
+        }
+      }
+    }
+  }
+  
+  iter->is_valid = false;
   return 0;  // you might need to change this return value.
 }
 
@@ -303,18 +341,22 @@ int HTIteratorPastEnd(HTIter iter) {
   Verify333(iter != NULL);
 
   // Step 5 -- implement HTIteratorPastEnd.
+  if (!iter->is_valid) return 1;
+  if (iter->bucket_it != NULL) return 0;
 
-
-  return 0;  // you might need to change this return value.
+  return 1;  // you might need to change this return value.
 }
 
 int HTIteratorGet(HTIter iter, HTKeyValue *keyvalue) {
   Verify333(iter != NULL);
 
   // Step 6 -- implement HTIteratorGet.
-
-
-  return 0;  // you might need to change this return value.
+  if (!iter->is_valid) return 0;
+  
+  LLPayload_t payload = NULL;
+  LLIteratorGetPayload(iter->bucket_it, &payload);
+  *keyvalue = *((HTKeyValue*) payload);
+  return 1;  // you might need to change this return value.
 }
 
 int HTIteratorDelete(HTIter iter, HTKeyValue *keyvalue) {
