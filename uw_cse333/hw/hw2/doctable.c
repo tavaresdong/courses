@@ -106,7 +106,7 @@ DocID_t DTRegisterDocumentName(DocTable table, char *docname) {
   // Set up the key/value for the docname_to_docid mapping, and
   // do the insert.
 
-  kv.key = FNVHash64(docname, strlen(docname));
+  kv.key = FNVHash64((unsigned char *) docname, strlen(docname));
   kv.value = (void *) docid;
   ret = InsertHashTable(table->docname_to_docid, kv, &oldkv);
   Verify333(ret == 1);
@@ -128,7 +128,7 @@ DocID_t DTLookupDocumentName(DocTable table, char *docname) {
   // either "0" if the docname isn't found or the
   // docID if it is.
 
-  key = FNVHash64(docname, strlen(docname));
+  key = FNVHash64((unsigned char *) docname, strlen(docname));
   res = LookupHashTable(table->docname_to_docid, key, &kv);
   if (res == 1) return *((DocID_t *) kv.value);
   else return 0;

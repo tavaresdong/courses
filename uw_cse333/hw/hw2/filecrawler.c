@@ -93,11 +93,14 @@ static void HandleDir(char *dirpath, DIR *d, DocTable *doctable,
     int res, charsize;
     struct stat nextstat;
     struct dirent *dirent = NULL, entry;
+    DIR *d2 = NULL;
 
     // STEP 1.
     // Use the "readdir_r()" system call to read the next directory entry. (man
     // 3 readdir_r).  If we hit the end of the directory, return back
     // out of this function.
+    if (readdir_r(d, &entry, &dirent) != 0) return;
+    if (dirent == NULL) return;
 
 
     // STEP 2.
@@ -107,6 +110,8 @@ static void HandleDir(char *dirpath, DIR *d, DocTable *doctable,
     // "d_name" field of the struct dirent returned by readdir(), and you can
     // use strcmp() to compare it to "." or ".."
 
+    if (strncmp(dirent->d_name, ".", 1) == 0) continue;
+    if (strncmp(dirent->d_name, "..", 2) == 0) continue;
 
     // We need to append the name of the file to the name of the directory
     // we're in to get the full filename. So, we'll malloc space for:
@@ -115,7 +120,7 @@ static void HandleDir(char *dirpath, DIR *d, DocTable *doctable,
     charsize = strlen(dirpath) + 1 + strlen(dirent->d_name) + 1;
     newfile = (char *) malloc(charsize);
     Verify333(newfile != NULL);
-    if (dirpath[strlen(dirpath)-1] == '/') {
+    if (dirpath[strlen(dirpath) - 1] == '/') {
       // no need to add an additional '/'
       snprintf(newfile, charsize, "%s%s", dirpath, dirent->d_name);
     } else {
@@ -139,7 +144,15 @@ static void HandleDir(char *dirpath, DIR *d, DocTable *doctable,
       // and recursively invoke HandleDir to handle it. Be sure to call the
       // "closedir()" system call when the recursive HandleDir() returns to
       // close the opened directory.
-
+      if (S_ISREG(nextstat.st_mode))
+        HandleFile(newfile, doctable, index);
+      else if (S_ISDIR(nextstat.st_mode)) {
+        d2 = opendir(newfile);
+        if (d2 != NULL) {
+          HandleDir(newfile, d2, doctable, index);
+          closedir(d2);
+        }
+      }
     }
 
     // Done with this file.  Fall back up to the next
@@ -152,17 +165,20 @@ static void HandleFile(char *fpath, DocTable *doctable, MemIndex *index) {
   HashTable tab = NULL;
   DocID_t docID;
   HTIter it;
+  int res;
 
   // STEP 4.
   // Invoke the BuildWordHT() function in fileparser.h/c to
   // build the word hashtable out of the file.
-
+  tab = BuildWordHT(fpath);
+  if (tab == NULL) return;
 
   // STEP 5.
   // Invoke the DTRegisterDocumentName() function in
   // doctable.h/c to register the new file with the
   // doctable.
-
+  docID = DTRegisterDocumentName(*doctable, fpath);
+  Verify333(docID != 0);
 
   // Loop through the hash table.
   it = HashTableMakeIterator(tab);
@@ -175,8 +191,11 @@ static void HandleFile(char *fpath, DocTable *doctable, MemIndex *index) {
     // of the hashtable. Then, use MIAddPostingList()  (defined in memindex.h)
     // to add the word, document ID, and positions linked list into the
     // inverted index.
+    res = HTIteratorDelete(it, &kv);
+    wp = (WordPositions *) kv.value;
 
-
+    res = MIAddPostingList(*index, wp->word, docID, wp->positions); 
+    Verify333(res == 1);
     // Since we've transferred ownership of the memory associated with both
     // the "word" and "positions" field of this WordPositions structure, and
     // since we've removed it from the table, we can now free the
