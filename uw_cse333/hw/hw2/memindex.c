@@ -86,7 +86,6 @@ int MIAddPostingList(MemIndex index, char *word, DocID_t docid,
   // even though you hadn't yet finished the
   // memindex.c implementation.
 
-  return 1;
 
   // First, we have to see if the word we're being handed
   // already exists in the inverted index.
@@ -102,6 +101,15 @@ int MIAddPostingList(MemIndex index, char *word, DocID_t docid,
     //   (3) insert that hashtable into the WordDocSet, and
     //   (4) insert the the new WordDocSet into the inverted
     //       index (i.e., into the "index" table).
+    wds = (WordDocSet *) malloc(sizeof(WordDocSet));
+    if (wds == NULL) return 0;
+    wds->word = word;
+    wds->docIDs = AllocateHashTable(32);
+    Verify333(wds->docIDs != NULL);
+    kv.key = wordkey;
+    kv.value = (void *) wds;
+    res = InsertHashTable(index, kv, &hitkv);
+    Verify333(res == 1);
   } else {
     // Yes, this word already exists in the inverted index.
     // So, there's no need to insert it again; we can go
@@ -122,7 +130,10 @@ int MIAddPostingList(MemIndex index, char *word, DocID_t docid,
   // The entry's key is this docID and the entry's value
   // is the "positions" word positions list we were passed
   // as an argument.
-
+  kv.key = docid;
+  kv.value = positions;
+  res = InsertHashTable(wds->docIDs, kv, &hitkv);
+  Verify333(res == 1);
 
   return 1;
 }
@@ -156,7 +167,25 @@ LinkedList MIProcessQuery(MemIndex index, char *query[], uint8_t qlen) {
   // Then, append the SearchResult structure onto retlist.
   //
   // If there are no matching documents, free retlist and return NULL.
+  wordkey = FNVHash64((unsigned char*) query[0], strlen(query[0])); 
+  res = LookupHashTable(index, wordkey, &kv);
+  if (res == 0) {
+    FreeLinkedList(retlist, (LLPayloadFreeFnPtr) free);
+    return NULL;
+  } else {
+    wds = (WordDocSet *) kv.value;
+    HTIter iter = HashTableMakeIterator(wds->docIDs);
+    do {
+      res = HTIteratorGet(iter, &kv);
+      SearchResult *sr = (SearchResult *) malloc(sizeof(SearchResult));
+      LinkedList positions = (LinkedList) kv.value;
+      sr->docid = kv.key;
+      sr->rank = NumElementsInLinkedList(positions);
 
+      PushLinkedList(retlist, (LLPayload_t) sr);
+    } while (HTIteratorNext(iter));
+    HTIteratorFree(iter);
+  }
 
   // Great; we have our search results for the first query
   // word.  If there is only one query word, we're done!
@@ -177,7 +206,12 @@ LinkedList MIProcessQuery(MemIndex index, char *query[], uint8_t qlen) {
     // Look up the next query word (query[i]) in the inverted index.
     // If there are no matches, it means the overall query
     // should return no documents, so free retlist and return NULL.
-
+    wordkey = FNVHash64((unsigned char*) query[i], strlen(query[i])); 
+    res = LookupHashTable(index, wordkey, &kv);
+    if (res == 0) {
+      FreeLinkedList(retlist, (LLPayloadFreeFnPtr) free);
+      return NULL;
+    }
 
     // STEP 6.
     // There are matches.  We're going to iterate through
@@ -190,10 +224,20 @@ LinkedList MIProcessQuery(MemIndex index, char *query[], uint8_t qlen) {
     // number of matches for the current word.
     //
     // If it isn't, we delete that docID from the search result list.
+    wds = (WordDocSet *) kv.value;
     llit = LLMakeIterator(retlist, 0);
     ne = NumElementsInLinkedList(retlist);
+    SearchResult *rs = NULL;
     for (j = 0; j < ne; j++) {
-
+      LLIteratorGetPayload(llit, (LLPayload_t *) &rs);
+      Verify333(rs != NULL);
+      res = LookupHashTable(wds->docIDs, rs->docid, &kv);
+      if (res == 0) {
+        LLIteratorDelete(llit, (LLPayloadFreeFnPtr) free);
+      } else {
+        rs->rank += NumElementsInLinkedList((LinkedList) kv.value);
+        LLIteratorNext(llit);
+      }
     }
     LLIteratorFree(llit);
   }
