@@ -21,15 +21,16 @@
 // Feature test macro for strtok_r (c.f., Linux Programming Interface p. 63)
 #define _XOPEN_SOURCE 600
 
+#include "libhw1/CSE333.h"
+#include "memindex.h"
+#include "filecrawler.h"
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
 #include <ctype.h>
 
-#include "libhw1/CSE333.h"
-#include "memindex.h"
-#include "filecrawler.h"
 
 static void Usage(void);
 
@@ -51,6 +52,68 @@ int main(int argc, char **argv) {
   // keyboard), searchshell should free all dynamically allocated
   // memory and any other allocated resources and then exit.
 
+  int res;
+  ssize_t read;
+  size_t len = 0;
+  char *line = NULL, *word = NULL, *savedptr;
+  char *words[32];
+  int wordlen;
+  DocTable dt;
+  MemIndex idx;
+  LinkedList llres;
+  LLIter it;
+  LLPayload_t payload;
+  SearchResultPtr result;
+
+  res = CrawlFileTree(argv[1], &dt, &idx);
+  if (res != 1) {
+    fprintf(stderr, "Failed to crawl the file tree from %s\n", argv[1]);
+    return EXIT_FAILURE;
+  }
+
+  while (true) {
+    // Only if we set line to NULL and len to 0
+    // will the library allocate space for the returned
+    // string, which should be freed by the client
+    line = NULL; len = 0;
+    read = getline(&line, &len, stdin);
+    if (read == -1) {
+      if (line != NULL) free(line);
+      break;
+    }
+
+    // Note: strtok return the pointer pointing
+    // to the position in the original string
+    // this pointer is not malloc()'ed, so should
+    // not be free()'d by user.
+    word = strtok_r(line, " \n", &savedptr);
+    wordlen = 0;
+    while (word != NULL) {
+      words[wordlen++] = word;
+      word = strtok_r(NULL, " \n", &savedptr);
+    }
+
+    llres = MIProcessQuery(idx, words, wordlen);
+
+    if (llres != NULL) {
+      it = LLMakeIterator(llres, 0);
+      do {
+        LLIteratorGetPayload(it, &payload);
+        result = (SearchResultPtr) payload;
+        fprintf(stdout, "Document: %s, rank: %d\n",
+                        DTLookupDocID(dt, result->docid),
+                        result->rank);
+      } while (LLIteratorNext(it));
+      LLIteratorFree(it);
+
+      FreeLinkedList(llres, (LLPayloadFreeFnPtr) free);
+    }
+
+    free(line);
+  }
+
+  FreeDocTable(dt);
+  FreeMemIndex(idx);
   return EXIT_SUCCESS;
 }
 
