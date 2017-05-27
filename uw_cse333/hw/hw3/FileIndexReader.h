@@ -21,13 +21,13 @@
 #ifndef _HW3_FILEINDEXREADER_H_
 #define _HW3_FILEINDEXREADER_H_
 
-#include <string>    // for std::string
-#include <cstdio>    // for (FILE *)
-
 #include "./filelayout.h"
 #include "./fileindexutil.h"    // for DISALLOW_COPY_AND_ASSIGN()
 #include "./DocTableReader.h"
 #include "./IndexTableReader.h"
+
+#include <string>    // for std::string
+#include <cstdio>    // for (FILE *)
 
 using std::string;
 

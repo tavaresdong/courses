@@ -32,24 +32,26 @@ extern "C" {
 namespace hw3 {
 
 FileIndexReader::FileIndexReader(std::string filename,
-                                 bool validate) {
-  // Stash a copy of the index file's name.
-  filename_ = filename;
-
+                                 bool validate)
+ : filename_(filename)
+{
   // Open a (FILE *) associated with filename.  Crash on error.
   file_ = fopen(filename_.c_str(), "rb");
   Verify333(file_ != nullptr);
 
   // Make the (FILE *) be unbuffered.  ("man setbuf")
   // MISSING:
-
+  setbuf(file_, nullptr);
 
   // Read the entire file header and convert to host format.
   // MISSING:
+  Verify333(fread(&header_, sizeof(header_), 1, file_) == 1);
+  header_.toHostFormat();
 
 
   // Verify that the magic number is correct.  Crash if not.
   // MISSING:
+  Verify333(header_.magic_number == MAGIC_NUMBER);
 
 
   // Make sure the index file's length lines up with the header fields.
@@ -70,6 +72,12 @@ FileIndexReader::FileIndexReader(std::string filename,
     HWSize_t left_to_read = header_.doctable_size + header_.index_size;
     while (left_to_read > 0) {
       // MISSING:
+      HWSize_t nread = fread(buf, 1, sizeof(buf), file_);
+      for (size_t i = 0; i < nread; ++i) {
+        crcobj.FoldByteIntoCRC(buf[i]);
+      }
+
+      left_to_read -= nread;
     }
     Verify333(crcobj.GetFinalCRC() == header_.checksum);
   }
