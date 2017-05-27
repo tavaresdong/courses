@@ -20,6 +20,7 @@
 
 #include <iostream>
 #include <algorithm>
+#include <map>
 
 #include "./QueryProcessor.h"
 
@@ -73,6 +74,48 @@ QueryProcessor::ProcessQuery(const vector<string> &query) {
   vector<QueryProcessor::QueryResult> finalresult;
 
   // MISSING:
+  // For each index
+
+  for (size_t i = 0; i < arraylen_; ++i) {
+    std::map<std::string, HWSize_t> ranks;
+    DocTableReader* dReader = dtr_array_[i];
+    IndexTableReader* iReader = itr_array_[i];
+
+    for (size_t j = 0; j < query.size(); ++j) {
+      std::string word = query[j];
+      DocIDTableReader* diReader = iReader->LookupWord(word);
+      if (diReader == nullptr) {
+        ranks.clear();
+        break;
+      }
+
+      auto dilist = diReader->GetDocIDList();
+      if (dilist.empty()) {
+        ranks.clear();
+        break;
+      }
+
+      std::map<std::string, HWSize_t> tmpranks;
+      for (const auto& docidheader : dilist) {
+        DocID_t docid = docidheader.docid;
+        std::string docname;
+        HWSize_t num_positions = docidheader.num_positions;
+        Verify333(dReader->LookupDocID(docid, &docname));
+        if (j == 0 || (num_positions > 0 && ranks.count(docname))) {
+          // If all previous words in the query
+          // are present in this docname, then we
+          // proceed to accumulate the rank
+          tmpranks[docname] = ranks[docname] + num_positions;
+        }
+      }
+
+      tmpranks.swap(ranks);
+    }
+
+    for (const auto& kv : ranks) {
+      finalresult.push_back(QueryResult(kv.first, kv.second));
+    }
+  }
 
 
   // Sort the final results.

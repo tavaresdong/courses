@@ -60,6 +60,9 @@ class QueryProcessor {
   // of query words within the document.
   class QueryResult {
    public:
+    QueryResult(string dn, HWSize_t r) :
+      document_name(dn), rank(r) {}
+
     bool operator<(const QueryResult &rhs) const { return rank > rhs.rank; }
     string    document_name;  // The name of a matching document.
     HWSize_t  rank;           // The rank of the matching document.

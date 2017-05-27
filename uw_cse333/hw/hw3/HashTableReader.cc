@@ -109,6 +109,7 @@ HashTableReader::LookupElementPositions(HTKey_t hashKey) {
   Verify333(fseek(file_, b_rec.bucket_position, SEEK_SET) == 0);
   for (size_t i = 0; i < b_rec.chain_len; ++i) {
     Verify333(fread(&e_rec, sizeof(e_rec), 1, file_) == 1);
+    e_rec.toHostFormat();
     retval.push_back(e_rec.element_position);
   }
 
