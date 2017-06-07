@@ -127,3 +127,49 @@ reallocation, so s = append(s, 1) is the idiom for Go.
     x = append(x, 2, 3)
     x = append(x, x...) // variadic, append a slice
 
+## Map
+map is a reference to hashtable in Go
+ages := make(map[string]int)
+    
+    ages := map[string]int{
+        "good" : 3,
+        "day" : 4,
+    }
+
+a map element is not a variable, cannot take its address: rehashing may change the element
+in the previous address.
+range base for can be applied to a map, but the order is unspecified
+map [] operation always get a value: zero value if the key is not present
+
+    age, ok := ages['name']; !ok {} // go idiom
+    // distinguish between zero and missing cases
+
+the value of a map can itself be a composite type, like a slice or a map
+
+## Structs
+Like C, go structs can contain pointers to its own type, but not fields of the same type
+declaring a struct variable, like array, we can also use named fields definitions:
+
+    p := Point{1, 2}
+    p := Point{ X: 1, Y: 2} // if we don't specify X, its zero-valued
+
+Also, if the field names are not capitalized, then it is not exported, we cannot access if from
+outside the package
+For efficiency, large struts are passed by pointer
+And this is necessary for call by value languages like go if you want to modify the argument
+passed in and let caller known the change.
+
+### Struct embedding
+
+    type Point struct {
+        X, Y int
+    }
+
+    type Circle struct {
+        Center // anonymous field
+        Radius int
+    }
+
+    var c Circle
+    c.X = 1 // ok
+    c = Circle{Point{3, 3}, 20} // must initialize like this
