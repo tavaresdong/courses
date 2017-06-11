@@ -31,8 +31,10 @@
 static void ResizeHashtable(HashTable ht);
 
 // a free function that does nothing
-static void LLNullFree(LLPayload_t freeme) { }
-static void HTNullFree(HTValue_t freeme) { }
+static void LLNullFree(LLPayload_t freeme) {
+}
+static void HTNullFree(HTValue_t freeme) {
+}
 
 HashTable AllocateHashTable(HWSize_t num_buckets) {
   HashTable ht;
@@ -167,6 +169,7 @@ LLIter FindKVInHashTable(LinkedList list, HTKey_t key)
     if (nkey == key)
       return iter;
   } while (LLIteratorNext(iter));
+  LLIteratorFree(iter);
   return NULL;
 }
 
@@ -208,9 +211,9 @@ int InsertHashTable(HashTable table,
     *oldkeyvalue = *((HTKeyValue*) payload);
     ((HTKeyValue*) payload)->key = newkeyvalue.key;
     ((HTKeyValue*) payload)->value = newkeyvalue.value;
+    LLIteratorFree(location);
     return 2;
   }
-
   return 0;  // You may need to change this return value.
 }
 
@@ -231,6 +234,7 @@ int LookupHashTable(HashTable table,
   LLPayload_t payload = NULL;
   LLIteratorGetPayload(location, &payload);
   *keyvalue = *((HTKeyValue*) payload);
+  LLIteratorFree(location);
   return 1;  // you may need to change this return value.
 }
 
@@ -251,10 +255,12 @@ int RemoveFromHashTable(HashTable table,
     LLPayload_t payload = NULL;
     LLIteratorGetPayload(location, &payload);
     *keyvalue = *((HTKeyValue*) payload);
-    LLIteratorDelete(location, LLNullFree);
+    LLIteratorDelete(location, free);
     table->num_elements -= 1;
+    LLIteratorFree(location);
     return 1;
   }
+  LLIteratorFree(location);
   return -1;  // you may need to change this return value.
 }
 
@@ -326,6 +332,8 @@ int HTIteratorNext(HTIter iter) {
       for (; iter->bucket_num < iter->ht->num_buckets; ++iter->bucket_num) {
         LinkedList chain = iter->ht->buckets[iter->bucket_num];
         if (NumElementsInLinkedList(chain) != 0U) {
+          if (iter->bucket_it != NULL)
+            LLIteratorFree(iter->bucket_it);
           iter->bucket_it = LLMakeIterator(chain, 0);
           return 1;
         }
