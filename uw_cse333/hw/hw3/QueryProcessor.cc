@@ -21,6 +21,7 @@
 #include <iostream>
 #include <algorithm>
 #include <map>
+#include <memory>
 
 #include "./QueryProcessor.h"
 
@@ -83,8 +84,8 @@ QueryProcessor::ProcessQuery(const vector<string> &query) {
 
     for (size_t j = 0; j < query.size(); ++j) {
       std::string word = query[j];
-      DocIDTableReader* diReader = iReader->LookupWord(word);
-      if (diReader == nullptr) {
+      auto diReader = std::shared_ptr<DocIDTableReader>(iReader->LookupWord(word));
+      if (diReader.get() == nullptr) {
         ranks.clear();
         break;
       }
