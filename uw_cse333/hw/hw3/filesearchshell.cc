@@ -18,11 +18,15 @@
  *  along with 333proj.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include <algorithm>
 #include <cstdio>
 #include <cstdlib>
 #include <iostream>
+#include <sstream>
 
 #include "./QueryProcessor.h"
+
+using namespace hw3;
 
 static void Usage(char *progname) {
   std::cerr << "Usage: " << progname << " [index files+]" << std::endl;
@@ -88,7 +92,40 @@ static void Usage(char *progname) {
 int main(int argc, char **argv) {
   if (argc < 2) Usage(argv[0]);
 
-  while (1) {
+  // (1) Load the indexes
+  std::list<std::string> indexes;
+  for (int i = 1; i < argc; ++i)
+  {
+    indexes.push_back(argv[i]);
+  } 
+
+  hw3::QueryProcessor qp(indexes); 
+
+  while (1) 
+  {
+    // (2) Ask the user to input the next query
+    std::string queryLine;
+    std::cout << "Enter query:\n";
+    std::getline(std::cin, queryLine);
+    if (std::cin.eof())
+      break;
+
+    // (3) Convert to a vector of strings
+    std::istringstream iss(queryLine);
+    std::vector<std::string> queryWords;
+    do {
+      std::string qw;
+      iss >> qw;
+      if (!qw.empty())
+        queryWords.push_back(qw);
+    } while (iss);
+
+    // (4) Process the query and output
+    auto qrs = qp.ProcessQuery(queryWords);
+    std::for_each(qrs.begin(), qrs.end(), [](const QueryProcessor::QueryResult& qr) {
+              std::cout << " " + qr.document_name + "(" 
+                        << qr.rank << ")\n";
+            });
   }
 
   return EXIT_SUCCESS;
