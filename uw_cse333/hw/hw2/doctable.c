@@ -87,6 +87,8 @@ DocID_t DTRegisterDocumentName(DocTable table, char *docname) {
   // STEP 2.
   res = DTLookupDocumentName(table, docname);
   if (res != 0) {
+    free(doccopy);
+    free(docid);
     return res;
   }
 
