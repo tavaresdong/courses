@@ -54,8 +54,10 @@ bool FileReader::ReadFile(std::string *str) {
 
   HWSize_t size;
   std::unique_ptr<char, MallocDeleter<char> > ptr { ::ReadFile(fullfile.c_str(), &size) };
-  *str = std::string(ptr.get(), size);
 
+  if (ptr.get() == nullptr) return false;
+
+  *str = std::string(ptr.get(), size);
   return true;
 }
 
