@@ -56,9 +56,50 @@ bool ServerSocket::BindAndListen(int ai_family, int *listen_fd) {
   // listening socket through the output parameter "listen_fd".
 
   // MISSING:
+  int serversock, retval;
+  struct addrinfo hints, *results, *r;
+  char portstr[10];
 
+  snprintf(portstr, sizeof(portstr), "%hu", port_);
 
-  return true;
+  memset(&hints, 0, sizeof(hints));
+  hints.ai_family = ai_family;
+  hints.ai_flags = AI_PASSIVE;
+  hints.ai_socktype = SOCK_STREAM;
+  
+  if ((retval = getaddrinfo(NULL,
+                            portstr,
+                            &hints,
+                            &results)) != 0)
+  {
+    std::cerr << "getaddrinfo failed: ";
+    std::cerr << gai_strerror(retval) << std::endl;
+    return false;
+  }
+
+  for (r = results; r != nullptr; r = r->ai_next) 
+  {
+    if ((serversock = socket(r->ai_family, SOCK_STREAM, 0)) == -1)
+    {
+      continue;
+    }
+
+    if (bind(serversock, r->ai_addr, r->ai_addrlen) == -1)
+    {
+      continue;
+    }
+
+    if (listen(serversock, 10) == -1)
+    {
+      continue;
+    }
+    listen_sock_fd_ = *listen_fd = serversock;
+    freeaddrinfo(results);
+    return true;
+  }
+
+  freeaddrinfo(results);
+  return false;
 }
 
 bool ServerSocket::Accept(int *accepted_fd,
@@ -74,6 +115,75 @@ bool ServerSocket::Accept(int *accepted_fd,
 
   // MISSING:
 
+  struct sockaddr_storage addr;
+  struct sockaddr* paddr = reinterpret_cast<struct sockaddr*>(&addr);
+  char host[1024];
+  char chost[1024];
+  char service[1024];
+  int retval;
+  socklen_t addrlen = sizeof(addr);
+
+  while (1)
+  {
+    retval = accept(listen_sock_fd_, paddr, &addrlen);
+    if (retval < 0) {
+      if (errno == EAGAIN || errno == EINTR)
+        continue;
+
+      return false;
+    }
+    break;
+  }
+
+  *accepted_fd = retval;
+
+  if (paddr->sa_family == AF_INET)
+  {
+    char buf[INET_ADDRSTRLEN];
+    struct sockaddr_in* psockaddr = reinterpret_cast<struct sockaddr_in*>(paddr);
+    inet_ntop(AF_INET, &(psockaddr->sin_addr), buf, INET_ADDRSTRLEN);
+    *client_addr = std::string(buf);
+    *client_port = ntohs(psockaddr->sin_port);
+  }
+  else if (paddr->sa_family == AF_INET6)
+  {
+    char buf[INET6_ADDRSTRLEN];
+    struct sockaddr_in6* psockaddr = reinterpret_cast<struct sockaddr_in6*>(paddr);
+    inet_ntop(AF_INET6, &(psockaddr->sin6_addr), buf, INET6_ADDRSTRLEN);
+    *client_addr = std::string(buf);
+    *client_port = ntohs(psockaddr->sin6_port);
+  }
+
+  if (getnameinfo((struct sockaddr*) &addr, sizeof(addr),
+                  chost, sizeof(chost), service, sizeof(service), 0) == 0)
+  {
+    *client_dnsname = std::string(chost);
+  }
+
+  host[0] = '\0';
+
+  if (sock_family_ == AF_INET)
+  {
+    struct sockaddr_in serveraddr;
+    socklen_t serverlen = sizeof(serveraddr);
+    char buf[INET_ADDRSTRLEN];
+    getsockname(retval, (struct sockaddr*) &serveraddr, &serverlen);
+    inet_ntop(AF_INET, &serveraddr.sin_addr, buf, INET_ADDRSTRLEN);
+    getnameinfo((const struct sockaddr*) &serveraddr, serverlen, host, sizeof(host), NULL, 0, 0);
+    *server_addr = std::string(buf);
+    *server_dnsname = std::string(host);
+  }
+  else
+  {
+    struct sockaddr_in6 serveraddr;
+    socklen_t serverlen = sizeof(serveraddr);
+    char buf[INET6_ADDRSTRLEN];
+    getsockname(retval, (struct sockaddr*) &serveraddr, &serverlen);
+    inet_ntop(AF_INET6, &serveraddr.sin6_addr, buf, INET6_ADDRSTRLEN);
+    getnameinfo((const struct sockaddr*) &serveraddr, serverlen, host, sizeof(host), NULL, 0, 0);
+    *server_addr = std::string(buf);
+    *server_dnsname = std::string(host);
+  }
 
   return true;
 }
