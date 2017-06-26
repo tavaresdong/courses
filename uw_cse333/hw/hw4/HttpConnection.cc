@@ -49,7 +49,31 @@ bool HttpConnection::GetNextRequest(HttpRequest *request) {
   // caller invokes GetNextRequest()!
 
   // MISSING:
+  auto pos = buffer_.find("\r\n\r\n");
+  if (pos == std::string::npos)
+  {
+    char buf[1024];
+    while (1)
+    {
+      int res = WrappedRead(fd_, reinterpret_cast<unsigned char*>(buf), sizeof(buf));
+      if (res == -1) return false;
+      else if (res == 0) break;
+      else
+      {
+        buffer_ += std::string(buf, res);
+      }
 
+      pos = buffer_.find("\r\n\r\n");
+      if (pos != std::string::npos) break;
+    }
+  }
+
+  if (pos == std::string::npos) return false;
+
+  *request = ParseRequest(pos + 4);
+
+  // TODO return false if the request is not well formatted
+  buffer_ = buffer_.substr(pos + 4);
 
   return true;
 }
@@ -84,7 +108,25 @@ HttpRequest HttpConnection::ParseRequest(size_t end) {
   // to lowercase.
 
   // MISSING:
+  std::vector<std::string> lines;
+  boost::algorithm::split(lines, str, boost::is_any_of("\r\n"), boost::token_compress_on);
 
+  std::vector<std::string> firstRow;
+  boost::algorithm::split(firstRow, lines[0], boost::is_any_of("\t "), boost::token_compress_on);
+  req.URI = firstRow[1];
+
+  for (size_t idx = 1; idx < lines.size(); ++idx)
+  {
+    boost::algorithm::to_lower(lines[idx]);
+    std::vector<std::string> kv;
+    boost::algorithm::split(kv, lines[idx], boost::is_any_of(":"));
+    if (kv.size() == 2)
+    {
+      boost::trim(kv[0]);
+      boost::trim(kv[1]);
+      req.headers[kv[0]] = kv[1];
+    }
+  }
 
   return req;
 }
