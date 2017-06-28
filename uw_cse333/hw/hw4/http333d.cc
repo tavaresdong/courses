@@ -84,7 +84,7 @@ int main(int argc, char **argv) {
 }
 
 
-void Usage(char *progname) {
+void Usage(const char *progname) {
   cerr << "Usage: " << progname << " port staticfiles_directory indices+";
   cerr << endl;
   exit(EXIT_FAILURE);
@@ -103,5 +103,48 @@ void GetPortAndPath(int argc,
   //      are readable files.
 
   // MISSING:
+  // 1. argc is reasonable
+  if (argc < 4) 
+  {
+    Usage("http333d");
+  }
+
+  // 2. the port number is reasonable
+  *port = atoi(argv[1]);
+  if (*port <= 1023)
+  {
+    cerr << "Port number should be within [1024, 65535]" << endl;
+    exit(EXIT_FAILURE);
+  }
+
+  // 3. the static file directory is readable
+  *path = std::string(argv[2]);
+
+  if (::access(path->c_str(), R_OK) != 0)
+  { 
+    cerr << "Static file directory: " << *path
+         << "does not exist or is not readable." << endl;
+    exit(EXIT_FAILURE);
+  }
+
+  // 4. all the index files are readable
+  for (int i = 3; i < argc; ++i)
+  {
+    std::string indicePath(argv[i]);
+    //if (!boost::filesystem::exists(indicePath) ||
+    //    !boost::filesystem::is_regular_file(indicePath))
+    //{
+    //  cerr << "Index file: " << indicePath 
+    //       << " does not exist or is not a regular file" << endl;
+    //  exit(EXIT_FAILURE);
+    //}
+
+    if (::access(indicePath.c_str(), R_OK) != 0)
+    {
+      cerr << "Index file: " << indicePath
+           << " does not exist or is not readable." << endl;
+      exit(EXIT_FAILURE);
+    }
+  }
 }
 

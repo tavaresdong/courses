@@ -95,6 +95,8 @@ void HttpServer_ThrFn(ThreadPool::Task *t) {
        << "(IP address " << hst->caddr << ")" << " connected." << endl;
 
   bool done = false;
+  HttpConnection conn(hst->client_fd);
+  HttpRequest req;
   while (!done) {
     // Use the HttpConnection class to read in the next request from
     // this client, process it by invoking ProcessRequest(), and then
@@ -103,6 +105,23 @@ void HttpServer_ThrFn(ThreadPool::Task *t) {
     // the connection.
 
     // MISSING:
+    int ret = conn.GetNextRequest(&req);
+    if (!ret)
+      done = true;
+    else
+    {
+      HttpResponse resp = ProcessRequest(req, hst->basedir, hst->indices);
+
+      // If a "Connection: close" header presents,
+      // then shut down the connection
+      if (req.headers.count("Connection") && 
+          req.headers.at("Connection") == "close")
+        done = true;
+
+      // Write back the response generated
+      ret = conn.WriteResponse(resp);
+      if (!ret) done = true;
+    }
   }
 }
 
@@ -118,6 +137,20 @@ HttpResponse ProcessRequest(const HttpRequest &req,
   return ProcessQueryRequest(req.URI, indices);
 }
 
+namespace 
+{
+  std::string getContentType(const std::string& fname_)
+  {
+    using boost::algorithm::ends_with;
+    if (ends_with(fname_, ".html")) return "text/html";
+    if (ends_with(fname_, ".htm"))  return "text/html";
+    if (ends_with(fname_, ".jpeg")) return "image/jpeg";
+    if (ends_with(fname_, ".jpg"))  return "image/jpeg";
+    if (ends_with(fname_, ".png"))  return "image/png";
+
+    return "text/xml"; // Default
+  }
+}
 
 HttpResponse ProcessFileRequest(const std::string &uri,
                                 const std::string &basedir) {
@@ -144,8 +177,24 @@ HttpResponse ProcessFileRequest(const std::string &uri,
   std::string fname = "";
 
   // MISSING:
+  // 1. use URLParser to figure out what filename the user is asking for
+  URLParser parser;
+  parser.Parse(uri);
+  fname = parser.get_path().substr(8);
 
+  // 2. use FileReader to read the file into memory
+  FileReader reader(basedir, fname);
 
+  // 3. Copy the file content into ret.body
+  if (reader.ReadFile(&ret.body))
+  {
+    ret.protocol = "HTTP/1.1";
+    ret.response_code = 200;
+    ret.message = "Found";   
+    ret.headers["Content-type"] = getContentType(fname);
+    return ret;
+  }
+  
 
   // If you couldn't find the file, return an HTTP 404 error.
   ret.protocol = "HTTP/1.1";
