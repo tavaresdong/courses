@@ -2,11 +2,16 @@ package percolation;
 import edu.princeton.cs.algs4.WeightedQuickUnionUF;
 
 public class Percolation {
-    private int size;
+
+    // size N: N * N square
+    private final int size;
+
+    // arr[i][j] == true means this node is open
     private boolean[][] arr;
-    private WeightedQuickUnionUF uf, ufFull;
+    private int openSites;
+
+    private final WeightedQuickUnionUF uf, ufFull;
     private int top, bottom;
-    
     
     public Percolation(int N) 
     {
@@ -15,6 +20,7 @@ public class Percolation {
         size = N;
         top = N * N;
         bottom = N * N + 1;
+        openSites = 0;
         
         arr = new boolean[N][N];
         uf = new WeightedQuickUnionUF(N * N + 2);
@@ -24,9 +30,10 @@ public class Percolation {
     public void open(int i, int j) 
     {
         if (i < 1 || size < i || j < 1 || size < j)
-            throw new IndexOutOfBoundsException();
+            throw new IllegalArgumentException();
         if (isOpen(i, j)) return;
         arr[i - 1][j - 1] = true;
+        openSites++;
         
         int index = getIndex(i, j);
         if (i == 1) {
@@ -64,7 +71,7 @@ public class Percolation {
     public boolean isOpen(int i, int j) 
     {
         if (i < 1 || size < i || j < 1 || size < j)
-            throw new IndexOutOfBoundsException();
+            throw new IllegalArgumentException();
         
         return arr[i - 1][j - 1];
     }
@@ -72,7 +79,7 @@ public class Percolation {
     public boolean isFull(int i, int j) 
     {
         if (i < 1 || size < i || j < 1 || size < j)
-            throw new IndexOutOfBoundsException();
+            throw new IllegalArgumentException();
         if (isOpen(i, j) && ufFull.connected(getIndex(i, j), top))
             return true;
         return false;
@@ -83,7 +90,11 @@ public class Percolation {
     {
         return uf.connected(top, bottom);
     }
-    
+
+    public int numberOfOpenSites()
+    {
+        return openSites;
+    }
     
     public static void main(String[] args) 
     {

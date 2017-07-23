@@ -48,7 +48,6 @@ public class PercolationStats {
     
     public double mean()
     {
-        
         return meanVal;
     }
     
