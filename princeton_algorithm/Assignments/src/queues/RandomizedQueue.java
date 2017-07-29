@@ -11,8 +11,7 @@ public class RandomizedQueue<Item> implements Iterable<Item> {
     private int capacity;
     private int size;
     
-    public RandomizedQueue()
-    {
+    public RandomizedQueue() {
         array = null;
         size = 0;
         capacity = 0;
@@ -28,10 +27,9 @@ public class RandomizedQueue<Item> implements Iterable<Item> {
         return size;
     }
     
-    public void enqueue(Item item)
-    {
+    public void enqueue(Item item) {
         if (item == null)
-            throw new NullPointerException();
+            throw new IllegalArgumentException();
         
         if (size == capacity) {
             int nsize = 2 * size;
@@ -42,8 +40,7 @@ public class RandomizedQueue<Item> implements Iterable<Item> {
         size++;
     }
     
-    private void resize(int N) 
-    {
+    private void resize(int N) {
         Item[] narray = (Item[]) new Object[N];
         for (int i = 0; i < size; i++) {
             narray[i] = array[i];
@@ -51,11 +48,9 @@ public class RandomizedQueue<Item> implements Iterable<Item> {
         array = narray;
         capacity = N;
     }
-        
-    
+
     // Randomly move the pointer, remove and return the element
-    public Item dequeue()
-    {
+    public Item dequeue() {
         if (isEmpty()) 
             throw new NoSuchElementException();
         
@@ -72,8 +67,7 @@ public class RandomizedQueue<Item> implements Iterable<Item> {
         return ret;
     }
     
-    public Item sample()
-    {
+    public Item sample() {
         if (isEmpty()) 
             throw new NoSuchElementException();
 
@@ -86,8 +80,7 @@ public class RandomizedQueue<Item> implements Iterable<Item> {
         private int[] indexes;
         private int curIndex;
         
-        RandQueueIterator()
-        {
+        RandQueueIterator() {
             curIndex = 0;
             indexes = new int[size];
             for (int i = 0; i < size; i++) {
@@ -110,7 +103,6 @@ public class RandomizedQueue<Item> implements Iterable<Item> {
             if (curIndex == indexes.length)
                 return false;
             return true;
-            
         }
 
         @Override
@@ -126,12 +118,10 @@ public class RandomizedQueue<Item> implements Iterable<Item> {
     
     @Override
     public Iterator<Item> iterator() {
-        // TODO Auto-generated method stub
         return new RandQueueIterator();
     }
 
-    public static void main(String[] args)
-    {
+    public static void main(String[] args) {
 
     }
 }

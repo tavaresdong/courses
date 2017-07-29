@@ -18,8 +18,7 @@ public class Deque<Item> implements Iterable<Item> {
     private Node last;
     private int size;
     
-    public Deque()
-    {
+    public Deque() {
         first = null;
         last = null;
         size = 0;
@@ -35,17 +34,14 @@ public class Deque<Item> implements Iterable<Item> {
         return size;
     }
     
-    public void addFirst(Item item)
-    {
+    public void addFirst(Item item) {
         if (item == null) 
-            throw new NullPointerException();
+            throw new IllegalArgumentException();
         
         Node node = new Node();
         node.item = item;
         
         if (size == 0) {
-            node.next = null;
-            node.prev = null;
             first = node;
             last = node;
         } else {
@@ -57,17 +53,14 @@ public class Deque<Item> implements Iterable<Item> {
         size++;
     }
     
-    public void addLast(Item item) 
-    {
+    public void addLast(Item item) {
         if (item == null) 
-            throw new NullPointerException();
+            throw new IllegalArgumentException();
 
         Node node = new Node();
         node.item = item;
         
         if (size == 0) {
-            node.next = null;
-            node.prev = null;
             first = node;
             last = node;
         } else {
@@ -79,8 +72,7 @@ public class Deque<Item> implements Iterable<Item> {
         size++;
     }
     
-    public Item removeFirst()
-    {
+    public Item removeFirst() {
         if (size == 0)
             throw new NoSuchElementException();
         
@@ -95,8 +87,7 @@ public class Deque<Item> implements Iterable<Item> {
         return orig.item;
     }
     
-    public Item removeLast()
-    {
+    public Item removeLast() {
         if (size == 0)
             throw new NoSuchElementException();
         
@@ -112,8 +103,7 @@ public class Deque<Item> implements Iterable<Item> {
     }
     
     
-    private class DequeIterator implements Iterator<Item>
-    {
+    private class DequeIterator implements Iterator<Item> {
         private Node current = first;
         
         public void remove()
@@ -143,8 +133,7 @@ public class Deque<Item> implements Iterable<Item> {
         return new DequeIterator();
     }
     
-    public static void main(String[] args)
-    {
+    public static void main(String[] args) {
     }
     
 }
