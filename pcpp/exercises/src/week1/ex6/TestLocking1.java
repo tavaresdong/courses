@@ -41,8 +41,7 @@ class DoubleArrayList {
       for (int i=0; i<items.length; i++)
 	      newItems[i] = items[i];
       items = newItems;
-    }
-    items[size] = x;
+    }    items[size] = x;
     size++;
     return true;
   }
