@@ -1,4 +1,4 @@
-package week2;// For week 2
+package week2.ex4;// For week 2
 
 // Code from Goetz et al 5.6, written by Brian Goetz and Tim Peierls.
 // Modifications by sestoft@itu.dk * 2014-09-08
@@ -12,9 +12,10 @@ import java.util.*;
 public class TestCache {
   public static void main(String[] args) throws InterruptedException {
     Computable<Long, long[]> factorizer = new Factorizer(),
-      cachingFactorizer = new Memoizer1<Long,long[]>(factorizer);
+      cachingFactorizer = new Memoizer6<Long,long[]>(factorizer);
     // cachingFactorizer = factorizer;
-    
+
+    /*
     long p = 71827636563813227L;
 
     print(factorizer.compute(p));
@@ -29,12 +30,54 @@ public class TestCache {
     print(cachingFactorizer.compute(p));
     print(cachingFactorizer.compute(p));
     print(cachingFactorizer.compute(p));
+    */
+
+    exerciseFactorizer(cachingFactorizer);
+    System.out.println(((Factorizer) factorizer).getCount());
   }
 
   private static void print(long[] arr) {
     for (long x : arr) 
       System.out.print(" " + x);
     System.out.println();
+  }
+
+  private static void exerciseFactorizer(Computable<Long, long[]> f) {
+    final int threadCount = 16;
+    final long start = 10_000_000_000L, range = 20_000L;
+    System.out.println(f.getClass());
+    Thread[] threads = new Thread[threadCount];
+
+    for (int i = 0; i < threadCount; i++) {
+      final int tid = i;
+      threads[i] = new Thread(() -> {
+        try {
+          for (int num = 0; num < range; ++num) {
+            f.compute(start + num);
+          }
+          for (int num = 0; num < range; num++) {
+            f.compute(start + range + tid * 5000 + num);
+          }
+        } catch (InterruptedException ex) {
+          //ignore for now
+        }
+      });
+    }
+
+    long startTime = System.nanoTime();
+    for (int i = 0; i < threadCount; i++) {
+      threads[i].start();
+    }
+
+    for (int i = 0; i < threadCount; i++) {
+      try {
+        threads[i].join();
+      } catch (InterruptedException ex) {
+        //ignore for now
+      }
+    }
+    long endTime = System.nanoTime();
+    System.out.println("Time spent : " + (endTime - startTime));
   }
 }
 
@@ -58,10 +101,10 @@ class Factorizer implements Computable<Long, long[]> {
     long k = 2;
     while (p >= k * k) {
       if (p % k == 0) {
-	factors.add(k);
-	p /= k;
+	      factors.add(k);
+	      p /= k;
       } else 
-	k++;
+	      k++;
     }
     // Now k * k > p and no number in 2..k divides p
     factors.add(p);
@@ -137,8 +180,8 @@ class Memoizer3<A, V> implements Computable<A, V> {
     Future<V> f = cache.get(arg);
     if (f == null) {
       Callable<V> eval = new Callable<V>() {
-	  public V call() throws InterruptedException {
-	    return c.compute(arg);
+	      public V call() throws InterruptedException {
+	      return c.compute(arg);
       }};
       FutureTask<V> ft = new FutureTask<V>(eval);
       cache.put(arg, ft);
@@ -177,14 +220,14 @@ class Memoizer4<A, V> implements Computable<A, V> {
     Future<V> f = cache.get(arg);
     if (f == null) {
       Callable<V> eval = new Callable<V>() {
-	  public V call() throws InterruptedException {
-	    return c.compute(arg);
+	      public V call() throws InterruptedException {
+	      return c.compute(arg);
       }};
       FutureTask<V> ft = new FutureTask<V>(eval);
       f = cache.putIfAbsent(arg, ft);
       if (f == null) { 
-	f = ft; 
-	ft.run();
+	      f = ft;
+	      ft.run();
       }
     }
     try { return f.get(); } 
@@ -218,13 +261,14 @@ class Memoizer5<A, V> implements Computable<A, V> {
     // AtomicReference is used as a simple assignable holder; no atomicity needed
     final AtomicReference<FutureTask<V>> ftr = new AtomicReference<FutureTask<V>>();
     Future<V> f = cache.computeIfAbsent(arg, (A argv) -> {
-	  Callable<V> eval = new Callable<V>() {
-	      public V call() throws InterruptedException {
-		return c.compute(argv);
-	      }};
-	  ftr.set(new FutureTask<V>(eval));
-	  return ftr.get();
-      });
+	    Callable<V> eval = new Callable<V>() {
+        public V call() throws InterruptedException {
+          return c.compute(argv);
+        }
+	    };
+	    ftr.set(new FutureTask<V>(eval));
+	    return ftr.get();
+    });
     // Important to run() the future outside the computeIfAbsent():
     if (ftr.get() != null) 
       ftr.get().run();
@@ -239,6 +283,29 @@ class Memoizer5<A, V> implements Computable<A, V> {
       throw (Error) t;
     else
       throw new IllegalStateException("Not unchecked", t);
+  }
+}
+
+class Memoizer6<A, V> implements Computable<A, V> {
+  private final Map<A, V> cache
+          = new ConcurrentHashMap<>();
+  private final Computable<A, V> c;
+
+  public Memoizer6(Computable<A, V> c) { this.c = c; }
+
+  public V compute(final A arg) throws InterruptedException {
+    // AtomicReference is used as a simple assignable holder; no atomicity needed
+    final AtomicReference<FutureTask<V>> ftr = new AtomicReference<FutureTask<V>>();
+    V val = cache.computeIfAbsent(arg, (A argv) -> {
+      while (true) {
+        try {
+          return c.compute(argv);
+        } catch (InterruptedException ignore) {}
+      }
+    });
+
+    // Important to run() the future outside the computeIfAbsent():
+    return val;
   }
 }
 
@@ -260,24 +327,24 @@ class Memoizer <A, V> implements Computable<A, V> {
     while (true) {
       Future<V> f = cache.get(arg);
       if (f == null) {
-	Callable<V> eval = new Callable<V>() {
-	    public V call() throws InterruptedException {
-	      return c.compute(arg);
-	    }
-	  };
-	FutureTask<V> ft = new FutureTask<V>(eval);
-	f = cache.putIfAbsent(arg, ft);
-	if (f == null) {
-	  f = ft;
-	  ft.run();
-	}
+	      Callable<V> eval = new Callable<V>() {
+	        public V call() throws InterruptedException {
+	          return c.compute(arg);
+	        }
+	      };
+	      FutureTask<V> ft = new FutureTask<V>(eval);
+	      f = cache.putIfAbsent(arg, ft);
+	      if (f == null) {
+	        f = ft;
+	        ft.run();
+	      }
       }
       try {
-	return f.get();
+	      return f.get();
       } catch (CancellationException e) {
-	cache.remove(arg, f);
+	      cache.remove(arg, f);
       } catch (ExecutionException e) {
-	throw launderThrowable(e.getCause());
+	      throw launderThrowable(e.getCause());
       }
     }
   }
